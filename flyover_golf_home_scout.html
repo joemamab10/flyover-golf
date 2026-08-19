@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flyover Golf Scout</title>
+<style>
+:root{
+  --green:#113b2e;--green2:#285f42;--cream:#f7f3e8;--gold:#d4a037;
+  --ink:#17201b;--muted:#6f7972;--line:#e3e6e0;--white:#fff;--soft:#eef3ed;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#e9ece7;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,select{font:inherit}button{cursor:pointer}
+.phone{max-width:430px;min-height:100vh;margin:auto;background:var(--cream);padding-bottom:84px;box-shadow:0 0 40px #0001}
+header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 18px}
+.brand{display:flex;align-items:center;justify-content:space-between}.logo{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:.04em}.flag{font-size:25px}.logo small{display:block;font-size:9px;letter-spacing:.38em;color:var(--gold);margin-top:-2px}
+.hello{margin-top:18px;font-size:13px;color:#dbe5df}.heroq{font-size:24px;font-weight:800;margin:5px 0 12px}
+.location{font-size:11px;color:#dbe5df;display:flex;justify-content:space-between}
+.content{padding:16px}
+.finder{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 8px 22px #15332210;margin-bottom:14px}
+.finder h2{font-size:16px;margin:0 0 4px}.finder p{margin:0 0 12px;font-size:11px;color:var(--muted);line-height:1.4}
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.quick button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:10px;font-size:11px;font-weight:800}
+.find-btn{width:100%;border:0;background:var(--green);color:#fff;border-radius:12px;padding:12px;font-weight:900}
+.pick-hero{position:relative;background:var(--green);color:#fff;border-radius:18px;padding:18px;margin-bottom:12px;box-shadow:0 10px 24px #15332218;overflow:hidden}
+.pick-kicker{font-size:10px;font-weight:900;letter-spacing:.08em;color:var(--gold);margin-bottom:6px}
+.pick-hero h3{margin:0 64px 5px 0;font-size:20px;line-height:1.15}.pick-meta{font-size:11px;color:#dfe9e3;margin-bottom:10px}.pick-reason{font-size:11px;line-height:1.4;color:#f0f5f2;margin-bottom:14px}
+.pick-actions{display:grid;grid-template-columns:1fr auto;gap:8px}.pick-primary,.pick-secondary{border-radius:11px;padding:11px 12px;font-weight:900}.pick-primary{border:0;background:var(--gold);color:#fff}.pick-secondary{border:1px solid #ffffff33;background:#ffffff12;color:#fff}
+.scorebadge{position:absolute;top:16px;right:16px;width:48px;height:48px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:5px;line-height:1;background:#fff;color:var(--green);border:3px solid var(--gold);box-shadow:0 5px 14px #0002;font-weight:900;font-size:16px;text-align:center}
+.scorebadge small{font-size:7px;line-height:1;color:var(--muted);letter-spacing:.05em}
+.scout-panel{display:none;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;margin:12px 0 14px;box-shadow:0 8px 22px #15332210}
+.scout-panel.show{display:block}.scout-panel h3{margin:0 0 4px;font-size:16px}.scout-panel p{margin:0 0 12px;color:var(--muted);font-size:11px;line-height:1.4}
+.scout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scout-field label{display:block;font-size:9px;font-weight:900;letter-spacing:.06em;color:var(--muted);margin:0 0 5px 2px}.scout-field select{width:100%;min-height:42px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:0 10px;color:var(--ink)}
+.scout-full{grid-column:1/-1}.scout-toggle-row{display:flex;gap:8px;flex-wrap:wrap}.scout-toggle{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:8px 10px;font-size:10px;font-weight:800}.scout-toggle.active{background:var(--green);border-color:var(--green);color:#fff}
+.scout-find{width:100%;border:0;background:var(--green);color:#fff;border-radius:12px;padding:12px;font-weight:900;margin-top:4px}.scout-summary{margin-top:10px;padding:10px 11px;border-radius:12px;background:var(--soft);color:var(--green);font-size:10px;font-weight:800;line-height:1.35}
+.supporting-title{font-size:11px;font-weight:900;letter-spacing:.07em;color:var(--muted);margin:18px 2px 9px}.reco-list{display:grid;gap:8px}.reco-mini{position:relative;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 58px 12px 12px;text-align:left;color:var(--ink);box-shadow:0 4px 12px #1533220a}.reco-mini .mini-kicker{display:block;font-size:9px;font-weight:900;letter-spacing:.06em;color:var(--green2);margin-bottom:3px}.reco-mini strong{display:block;font-size:13px;line-height:1.2;margin-bottom:2px}.reco-mini small{display:block;color:var(--muted);font-size:10px;line-height:1.3}.reco-mini .scorebadge{width:40px;height:40px;top:10px;right:10px;font-size:13px;border-width:2px}.reco-mini .scorebadge small{font-size:6px}
+.course{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;margin-bottom:12px;box-shadow:0 5px 16px #1533220b}.photo{height:116px;background:linear-gradient(155deg,#78935e,#315f42 55%,#173d2e);position:relative;overflow:hidden}.photo:before{content:"";position:absolute;left:-10%;right:-10%;bottom:-32px;height:82px;border-radius:50%;background:#8dac67;transform:rotate(-4deg)}.photo:after{content:"⚑";position:absolute;right:28%;bottom:25px;color:#fff;font-size:28px}.coursebody{padding:12px}.row{display:flex;justify-content:space-between;gap:12px}.course h3{margin:0 0 4px;font-size:15px}.meta{font-size:12px;color:var(--muted)}.price{text-align:right;font-weight:900;color:var(--green);font-size:18px}.price small{display:block;font-size:9px;color:var(--muted);font-weight:600}
+.screen{display:none}.screen.active{display:block}.back{border:0;background:none;color:#fff;font-size:20px;padding:0}
+.detail{background:#fff;border-radius:22px 22px 0 0;margin-top:-20px;position:relative;padding:18px}.coursehero{height:185px;background:linear-gradient(155deg,#92a96e,#3d7049 55%,#173d2e);position:relative}.coursehero:after{content:"⚑";position:absolute;left:58%;top:62px;color:white;font-size:40px}
+.scorepanel{background:#f6f8f3;border:1px solid var(--line);border-radius:16px;padding:14px;margin:15px 0}.scoretop{display:flex;align-items:center;gap:16px;margin-bottom:12px}.scorecircle{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;padding:7px;background:var(--green);color:#fff;border:4px solid var(--gold);flex:0 0 auto}.scorecircle>div{display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1}.scorecircle strong{font-size:22px}.scorecircle span{font-size:8px}.scorewhy strong{display:block;font-size:14px}.scorewhy p{margin:4px 0 0;font-size:11px;color:var(--muted);line-height:1.35}
+.factor{display:grid;grid-template-columns:78px 1fr 28px;align-items:center;gap:8px;margin:7px 0;font-size:10px}.track{height:7px;background:#dde6dd;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--green2);border-radius:999px}.factor b{text-align:right;color:var(--green)}
+.tradeoffs{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:10px;color:var(--muted)}
+.tradeoffs strong{display:block;color:var(--ink);margin-bottom:4px}.tradeoffs ul{margin:0;padding-left:17px}.tradeoffs li{margin:2px 0}
+.score-note{font-size:9px;color:var(--muted);margin-top:9px;line-height:1.35}
+.slot{display:flex;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--line);font-weight:750}.slot button{border:0;background:none;color:var(--green);font-weight:900}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav{border:0;background:none;color:#89918c;font-size:10px}.nav b{display:block;font-size:18px;margin-bottom:2px}.nav.active{color:var(--green2)}
+
+.booking-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
+.booking-card h3{font-size:10px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
+.selection{display:flex;gap:10px;align-items:center}.thumb{width:70px;height:54px;border-radius:10px;background:linear-gradient(145deg,#8ca46a,#275b3e);flex:0 0 auto}
+.playerrow{display:flex;gap:8px}.player{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:#fff;font-weight:800}.player.active{background:var(--green);color:#fff;border-color:var(--green)}
+.addon{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.addon:last-child{border-bottom:0}
+.total{display:flex;justify-content:space-between;align-items:center;font-size:19px;font-weight:900;margin:16px 0}
+.primary{width:100%;border:0;background:var(--gold);color:#fff;border-radius:12px;padding:14px;font-weight:900}
+.confirm{text-align:center;padding:36px 18px}.check{width:72px;height:72px;border:3px solid var(--gold);border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;font-size:34px;color:var(--green)}
+.confirm h1{font-size:24px;margin:0 0 7px}.confirm-card{text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:22px 0}
+.secondary{width:100%;border:1px solid var(--green);background:#fff;color:var(--green);border-radius:12px;padding:13px;font-weight:900;margin-bottom:9px}
+
+</style>
+</head>
+<body>
+<div class="phone">
+<section id="home" class="screen active">
+<header>
+  <div class="brand"><div class="logo"><span class="flag">⚑</span><div>FLYOVER<small>GOLF</small></div></div><span></span></div>
+  <div class="hello">Good morning 👋</div>
+  <div class="heroq">Tell Scout how you want to play.</div>
+  <div class="location"><span>⌖ Current Location</span><span>Des Moines, IA</span></div>
+</header>
+<div class="content">
+  <div class="finder">
+    <h2>Flyover Scout</h2>
+    <p>Set your preferences and Scout will rank the best available rounds for you.</p>
+    <div class="quick"><button id="quickMorning">Morning</button><button id="quickFour">4 Players</button></div>
+    <button class="find-btn" id="openRefine">REFINE & FIND MY ROUND</button>
+  </div>
+
+  <div class="pick-hero" id="scoutResult">
+    <div class="pick-kicker">FLYOVER PICK</div>
+    <span class="scorebadge">92<small>SCORE</small></span>
+    <h3>Waveland · 8:30 AM</h3>
+    <div class="pick-meta">$42 · 12 min away · ★ 4.6 · weather 93/100</div>
+    <div class="pick-reason">Best overall match for your morning, budget, drive time, and 4-player preferences.</div>
+    <div class="pick-actions">
+      <button class="pick-primary" id="openScoutPick">VIEW & BOOK</button>
+      <button class="pick-secondary" id="refineScout">REFINE</button>
+    </div>
+  </div>
+
+  <div class="scout-panel" id="scoutPanel">
+    <h3>Refine Flyover Scout</h3>
+    <p>Tell us what matters most and we’ll rerank the available rounds.</p>
+    <div class="scout-grid">
+      <div class="scout-field"><label>WHEN</label><select id="prefWhen"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="any">Any time</option></select></div>
+      <div class="scout-field"><label>PLAYERS</label><select id="prefPlayers"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>
+      <div class="scout-field"><label>MAX DRIVE</label><select id="prefDrive"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+      <div class="scout-field"><label>MAX PRICE</label><select id="prefPrice"><option value="40">$40</option><option value="50">$50</option><option value="65" selected>$65</option><option value="80">$80</option></select></div>
+      <div class="scout-field scout-full"><label>HOLES</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" data-pref-group="holes" data-value="18">18 holes</button><button type="button" class="scout-toggle" data-pref-group="holes" data-value="9">9 holes</button><button type="button" class="scout-toggle" data-pref-group="holes" data-value="either">Either</button></div></div>
+      <div class="scout-field scout-full"><label>RIDING</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" data-pref-group="ride" data-value="cart">Cart</button><button type="button" class="scout-toggle" data-pref-group="ride" data-value="walk">Walk</button><button type="button" class="scout-toggle" data-pref-group="ride" data-value="either">Either</button></div></div>
+      <div class="scout-field scout-full"><label>STYLE</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" data-pref-group="style" data-value="balanced">Best overall</button><button type="button" class="scout-toggle" data-pref-group="style" data-value="value">Cheapest</button><button type="button" class="scout-toggle" data-pref-group="style" data-value="quality">Best course</button><button type="button" class="scout-toggle" data-pref-group="style" data-value="flex">I’m flexible</button></div></div>
+    </div>
+    <button type="button" class="scout-find" id="runScout">FIND MY ROUND</button>
+    <div class="scout-summary" id="scoutSummary"></div>
+  </div>
+
+  <div class="supporting-title">OTHER STRONG MATCHES</div>
+  <div class="reco-list">
+    <button class="reco-mini"><span class="mini-kicker">💰 BEST VALUE</span><span class="scorebadge">89<small>SCORE</small></span><strong>Bos Landen · 7:52 AM</strong><small>$36 · 34 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">⚡ PLAY SOON</span><span class="scorebadge">86<small>SCORE</small></span><strong>Hyperion · 7:40 AM</strong><small>$45 · 22 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">☀️ BEST WEATHER</span><span class="scorebadge">84<small>SCORE</small></span><strong>Echo Valley · 9:00 AM</strong><small>$48 · 28 min away</small></button>
+  </div>
+</div>
+</section>
+
+<section id="course" class="screen">
+<header><div class="brand"><button class="back" id="backHome">‹</button><strong>Course</strong><span></span></div></header>
+<div class="coursehero"></div>
+<div class="detail">
+  <h1 id="courseName" style="margin:0 0 4px;font-size:21px"></h1>
+  <div class="meta" id="courseCity"></div>
+  <div class="scorepanel">
+    <div class="scoretop">
+      <div class="scorecircle"><div><strong id="detailScore">92</strong><span>FLYOVER</span></div></div>
+      <div class="scorewhy"><strong id="scoreLabel">Flyover Pick</strong><p id="scoreReason"></p></div>
+    </div>
+    <div class="factor"><span>PRICE</span><div class="track"><div id="barPrice" class="fill"></div></div><b id="factorPrice"></b></div>
+    <div class="factor"><span>DRIVE TIME</span><div class="track"><div id="barDrive" class="fill"></div></div><b id="factorDrive"></b></div>
+    <div class="factor"><span>COURSE</span><div class="track"><div id="barCourse" class="fill"></div></div><b id="factorCourse"></b></div>
+    <div class="factor"><span>WEATHER</span><div class="track"><div id="barWeather" class="fill"></div></div><b id="factorWeather"></b></div>
+    <div class="tradeoffs" id="tradeoffs"></div>
+    <div class="score-note">Flyover Score weighs price, drive time, course quality, weather, time fit, hole format and ride/walk preference.</div>
+  </div>
+  <div id="slots"></div>
+</div>
+</section>
+
+
+<section id="booking" class="screen">
+<header><div class="brand"><button class="back" id="backCourse">‹</button><strong>Tee Time</strong><span></span></div></header>
+<div class="content">
+  <div class="booking-card">
+    <h3>YOUR SELECTION</h3>
+    <div class="selection">
+      <div class="thumb"></div>
+      <div>
+        <strong id="bookCourse"></strong>
+        <div class="meta" id="bookMeta"></div>
+        <div class="meta" id="bookTime"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="booking-card">
+    <h3>PLAYERS</h3>
+    <div class="playerrow">
+      <button class="player">1</button>
+      <button class="player">2</button>
+      <button class="player">3</button>
+      <button class="player active">4</button>
+    </div>
+  </div>
+
+  <div class="booking-card">
+    <h3>ADD-ONS</h3>
+    <div class="addon"><span>Cart</span><strong>$14</strong></div>
+    <div class="addon"><span>Range balls</span><strong>$6</strong></div>
+  </div>
+
+  <div class="total"><span>TOTAL</span><span id="totalPrice">$182</span></div>
+  <button class="primary" id="confirmBtn">CONTINUE TO BOOK</button>
+</div>
+</section>
+
+<section id="confirmed" class="screen">
+<header><div class="brand"><div class="logo"><span class="flag">⚑</span><div>FLYOVER<small>GOLF</small></div></div><span></span></div></header>
+<div class="confirm">
+  <div class="check">✓</div>
+  <h1>Booking Confirmed!</h1>
+  <div class="meta">Your round is locked in.</div>
+  <div class="confirm-card">
+    <strong id="confirmCourse"></strong>
+    <div class="meta" id="confirmMeta"></div>
+    <div class="total"><span id="confirmPlayers"></span><span id="confirmTotal"></span></div>
+  </div>
+  <button class="secondary">ADD TO CALENDAR</button>
+  <button class="primary" id="doneBtn">BACK TO SCOUT</button>
+</div>
+</section>
+
+<nav>
+<button class="nav active" data-nav="home"><b>⌂</b>Home</button>
+<button class="nav"><b>⌕</b>Explore</button>
+<button class="nav"><b>♡</b>Saved</button>
+<button class="nav"><b>▣</b>Rounds</button>
+</nav>
+</div>
+
+<script>
+const courses=[
+{name:"Bos Landen Golf Club",city:"Pella, IA",dist:"8.4 mi",drive:34,price:36,rating:4.5,weather:91,holes:18,walk:true,cart:true,times:[{t:"7:20 AM",h:7},{t:"7:36 AM",h:7},{t:"7:52 AM",h:7},{t:"8:08 AM",h:8}]},
+{name:"Waveland Golf Course",city:"Des Moines, IA",dist:"12 mi",drive:12,price:42,rating:4.6,weather:93,holes:18,walk:true,cart:true,times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]},
+{name:"Hyperion Field Club",city:"Johnston, IA",dist:"14 mi",drive:22,price:45,rating:4.8,weather:85,holes:18,walk:false,cart:true,times:[{t:"7:40 AM",h:7},{t:"8:10 AM",h:8},{t:"8:40 AM",h:8}]},
+{name:"Echo Valley Country Club",city:"Norwalk, IA",dist:"16 mi",drive:28,price:48,rating:4.6,weather:97,holes:18,walk:true,cart:true,times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]}
+];
+const prefState={holes:"18",ride:"cart",style:"balanced"};
+function $(id){return document.getElementById(id)}
+function clamp(n){return Math.max(0,Math.min(100,Math.round(n)))}
+function getPrefs(){return{when:$("prefWhen").value,players:+$("prefPlayers").value,drive:+$("prefDrive").value,price:+$("prefPrice").value,holes:prefState.holes,ride:prefState.ride,style:prefState.style}}
+function scoreCourse(c,p){
+  const matchingSlots=c.times.filter(x=>p.when==="morning"?x.h<12:p.when==="afternoon"?x.h>=12:true);
+  const slot=(matchingSlots[0]||c.times[0]);
+
+  // Normalized component scores
+  const priceRatio=c.price/p.price;
+  let price;
+  if(priceRatio<=0.70) price=100;
+  else if(priceRatio<=1.00) price=100-((priceRatio-.70)/.30)*20;
+  else price=80-Math.min(60,(priceRatio-1)*120);
+  price=clamp(price);
+
+  const driveRatio=c.drive/p.drive;
+  let drive;
+  if(driveRatio<=0.60) drive=100;
+  else if(driveRatio<=1.00) drive=100-((driveRatio-.60)/.40)*22;
+  else drive=78-Math.min(58,(driveRatio-1)*110);
+  drive=clamp(drive);
+
+  const course=clamp(((c.rating-3.5)/1.5)*35+65);
+  const weather=clamp(c.weather);
+
+  let timeFit=100;
+  if(p.when==="morning" && slot.h>=12) timeFit=45;
+  if(p.when==="afternoon" && slot.h<12) timeFit=55;
+  if(p.when==="any") timeFit=96;
+
+  let formatFit=100;
+  if(p.holes!=="either" && +p.holes!==c.holes) formatFit=35;
+
+  let rideFit=100;
+  if(p.ride==="walk" && !c.walk) rideFit=45;
+  if(p.ride==="cart" && !c.cart) rideFit=45;
+
+  // Preference-based weighting
+  let weights={price:.20,drive:.19,course:.24,weather:.17,time:.10,format:.05,ride:.05};
+  if(p.style==="value") weights={price:.37,drive:.20,course:.15,weather:.10,time:.08,format:.05,ride:.05};
+  if(p.style==="quality") weights={price:.10,drive:.13,course:.42,weather:.16,time:.09,format:.05,ride:.05};
+  if(p.style==="flex") weights={price:.18,drive:.15,course:.26,weather:.23,time:.08,format:.05,ride:.05};
+
+  let total=
+    price*weights.price +
+    drive*weights.drive +
+    course*weights.course +
+    weather*weights.weather +
+    timeFit*weights.time +
+    formatFit*weights.format +
+    rideFit*weights.ride;
+
+  // Hard-constraint penalties
+  if(c.price>p.price) total-=14;
+  if(c.drive>p.drive) total-=12;
+  if(formatFit<60) total-=12;
+  if(rideFit<60) total-=8;
+  if(timeFit<60) total-=10;
+
+  total=clamp(total);
+
+  const reasons=[];
+  if(price>=92) reasons.push("excellent value");
+  else if(price>=82) reasons.push("good price");
+  if(drive>=92) reasons.push("short drive");
+  else if(drive>=82) reasons.push("reasonable drive");
+  if(course>=94) reasons.push("top course quality");
+  else if(course>=88) reasons.push("strong course quality");
+  if(weather>=94) reasons.push("excellent weather");
+  if(timeFit>=95) reasons.push("ideal time fit");
+
+  let reason;
+  if(reasons.length){
+    reason=reasons.slice(0,3).join(", ")+".";
+  } else {
+    reason="Balanced fit across price, distance, course quality and conditions.";
+  }
+  reason=reason.charAt(0).toUpperCase()+reason.slice(1);
+
+  const tradeoffs=[];
+  if(c.price>p.price) tradeoffs.push(`$${c.price-p.price} over budget`);
+  if(c.drive>p.drive) tradeoffs.push(`${c.drive-p.drive} min beyond drive target`);
+  if(timeFit<60) tradeoffs.push("outside preferred time");
+  if(formatFit<60) tradeoffs.push("hole format mismatch");
+  if(rideFit<60) tradeoffs.push("ride/walk mismatch");
+
+  return{
+    score:total,
+    slot:slot.t,
+    reason,
+    tradeoffs,
+    factors:{price,drive,course,weather,time:timeFit,format:formatFit,ride:rideFit}
+  };
+}
+
+let bookingCourse=null,bookingTime=null,bookingPlayers=4;
+
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
+  $(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+function openBooking(c,t){
+  bookingCourse=c; bookingTime=t;
+  $("bookCourse").textContent=c.name;
+  $("bookMeta").textContent=`${c.city} · ${c.dist}`;
+  $("bookTime").textContent=`Today · ${t}`;
+  bookingPlayers=+($("prefPlayers")?.value || 4);
+  document.querySelectorAll(".player").forEach((b,i)=>b.classList.toggle("active",i+1===bookingPlayers));
+  updateBookingTotal();
+  showScreen("booking");
+}
+function updateBookingTotal(){
+  if(!bookingCourse)return;
+  const total=bookingCourse.price*bookingPlayers+14;
+  $("totalPrice").textContent=`$${total}`;
+}
+
+function renderScout(){
+  const prefs=getPrefs(),ranked=courses.map(c=>({course:c,...scoreCourse(c,prefs)})).sort((a,b)=>b.score-a.score),best=ranked[0];
+  const hero=$("scoutResult");hero.querySelector(".scorebadge").innerHTML=`${best.score}<small>SCORE</small>`;hero.querySelector("h3").textContent=`${best.course.name.replace(" Golf Course","")} · ${best.slot}`;hero.querySelector(".pick-meta").textContent=`$${best.course.price} · ${best.course.drive} min away · ★ ${best.course.rating.toFixed(1)} · weather ${best.course.weather}/100`;hero.querySelector(".pick-reason").textContent=best.reason;$("openScoutPick").onclick=()=>openCourse(best.course,best.slot);
+  document.querySelectorAll(".reco-mini").forEach((el,i)=>{
+    const r=ranked[i+1]; if(!r)return;
+    el.querySelector(".scorebadge").innerHTML=`${r.score}<small>SCORE</small>`;
+    el.querySelector("strong").textContent=`${r.course.name.replace(" Golf Course","")} · ${r.slot}`;
+    const caveat=r.tradeoffs.length?` · ${r.tradeoffs[0]}`:"";
+    el.querySelector("small:last-child").textContent=`$${r.course.price} · ${r.course.drive} min away${caveat}`;
+    el.onclick=()=>openCourse(r.course,r.slot)
+  });
+  $("scoutSummary").textContent=`${prefs.when==="any"?"Any time":prefs.when[0].toUpperCase()+prefs.when.slice(1)} · ${prefs.players} players · within ${prefs.drive} min · under $${prefs.price} · ${prefs.holes==="either"?"9 or 18":prefs.holes+" holes"} · ${prefs.ride}`;
+}
+function openCourse(c,t){
+  const s=scoreCourse(c,getPrefs());showScreen("course");
+  $("courseName").textContent=c.name;$("courseCity").textContent=`${c.city} · ${c.dist}`;$("detailScore").textContent=s.score;$("scoreLabel").textContent=s.score>=90?"Flyover Pick":"Great match for you";$("scoreReason").textContent=s.reason;
+  [["Price","price"],["Drive","drive"],["Course","course"],["Weather","weather"]].forEach(([id,key])=>{$("bar"+id).style.width=s.factors[key]+"%";$("factor"+id).textContent=s.factors[key]});
+  $("tradeoffs").innerHTML=s.tradeoffs.length
+    ? `<strong>Tradeoffs</strong><ul>${s.tradeoffs.map(x=>`<li>${x}</li>`).join("")}</ul>`
+    : `<strong>No major tradeoffs</strong><span>This round fits your current Scout preferences well.</span>`;
+  $("slots").innerHTML=c.times.map(x=>`<div class="slot"><span>${x.t}</span><button class="book-slot" data-time="${x.t}">$${c.price}</button></div>`).join(""); document.querySelectorAll(".book-slot").forEach(b=>b.onclick=()=>openBooking(c,b.dataset.time));
+}
+document.querySelectorAll(".scout-toggle").forEach(btn=>btn.onclick=()=>{const g=btn.dataset.prefGroup;prefState[g]=btn.dataset.value;document.querySelectorAll(`.scout-toggle[data-pref-group="${g}"]`).forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderScout()});
+["prefWhen","prefPlayers","prefDrive","prefPrice"].forEach(id=>$(id).onchange=renderScout);
+$("runScout").onclick=()=>{
+document.querySelectorAll(".player").forEach((b,i)=>b.onclick=()=>{
+  bookingPlayers=i+1;
+  document.querySelectorAll(".player").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  updateBookingTotal();
+});
+$("backCourse").onclick=()=>showScreen("course");
+$("confirmBtn").onclick=()=>{
+  const total=bookingCourse.price*bookingPlayers+14;
+  $("confirmCourse").textContent=bookingCourse.name;
+  $("confirmMeta").textContent=`${bookingCourse.city} · Today · ${bookingTime}`;
+  $("confirmPlayers").textContent=`${bookingPlayers} player${bookingPlayers===1?"":"s"} · Cart`;
+  $("confirmTotal").textContent=`$${total}`;
+  showScreen("confirmed");
+};
+$("doneBtn").onclick=()=>showScreen("home");
+
+renderScout();$("scoutPanel").classList.remove("show");$("scoutResult").scrollIntoView({behavior:"smooth",block:"center"})};
+$("refineScout").onclick=$("openRefine").onclick=()=>{$("scoutPanel").classList.toggle("show");if($("scoutPanel").classList.contains("show"))$("scoutPanel").scrollIntoView({behavior:"smooth",block:"start"})};
+$("quickMorning").onclick=()=>{$("prefWhen").value="morning";renderScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";renderScout()};
+$("backHome").onclick=()=>showScreen("home");
+renderScout();
+</script>
+</body>
+</html>
