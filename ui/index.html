@@ -44,7 +44,7 @@ header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inse
 .tradeoffs strong{display:block;color:var(--ink);margin-bottom:4px}.tradeoffs ul{margin:0;padding-left:17px}.tradeoffs li{margin:2px 0}
 .score-note{font-size:9px;color:var(--muted);margin-top:9px;line-height:1.35}
 .slot{display:flex;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--line);font-weight:750}.slot button{border:0;background:none;color:var(--green);font-weight:900}
-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav{border:0;background:none;color:#89918c;font-size:10px}.nav b{display:block;font-size:18px;margin-bottom:2px}.nav.active{color:var(--green2)}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav{border:0;background:none;color:#89918c;font-size:10px}.nav b{display:block;font-size:18px;margin-bottom:2px}.nav.active{color:var(--green2)}.nav:disabled{cursor:not-allowed;color:#b8beba}.nav small{display:block;margin-top:2px;font-size:6px;font-weight:900;letter-spacing:.08em;color:#a1a8a3}
 
 .booking-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}
 .booking-card h3{font-size:10px;letter-spacing:.06em;color:var(--muted);margin:0 0 10px}
@@ -57,17 +57,11 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 .confirm h1{font-size:24px;margin:0 0 7px}.confirm-card{text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin:22px 0}
 .secondary{width:100%;border:1px solid var(--green);background:#fff;color:var(--green);border-radius:12px;padding:13px;font-weight:900;margin-bottom:9px}
 
-.demo-note{margin:0 0 12px;padding:9px 11px;border:1px solid #e6dcc1;background:#fffaf0;border-radius:11px;color:#77643c;font-size:9px;line-height:1.4}
 .source-line{font-size:9px;color:var(--muted);margin-top:4px}
 
 .brandmark{
   width:36px;height:36px;object-fit:contain;display:block;flex:0 0 auto;
 }
-.phase2-note{
-  margin:0 0 12px;padding:10px 11px;border:1px solid #d9e3d9;background:#f4f7f2;
-  border-radius:12px;color:#53645a;font-size:9px;line-height:1.4;
-}
-.phase2-note strong{color:var(--green)}
 .provider-pill{
   display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:4px 7px;
   border:1px solid var(--line);border-radius:999px;background:#fff;
@@ -77,11 +71,9 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 .provider-dot.live{background:#4f8b5f}
 
 
-.api-status{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:9px;font-weight:800;color:var(--muted)}
-.api-status-dot{width:7px;height:7px;border-radius:50%;background:#c49a3a;flex:0 0 auto}
+.prototype-status{display:flex;align-items:flex-start;gap:9px;margin:0 0 12px;padding:9px 11px;border:1px solid #e6dcc1;background:#fffaf0;border-radius:11px;color:#77643c}.prototype-status strong{display:block;margin-bottom:2px;font-size:9px;color:var(--green)}.prototype-status span:last-child{display:block;font-size:9px;line-height:1.35}
+.api-status-dot{width:7px;height:7px;margin-top:3px;border-radius:50%;background:#c49a3a;flex:0 0 auto}
 .api-status-dot.live{background:#4f8b5f}.api-status-dot.offline{background:#a85a4e}
-.api-error{display:none;margin-top:10px;padding:9px 10px;border-radius:10px;background:#fff6f3;border:1px solid #ead3cc;color:#8b4c42;font-size:9px;line-height:1.35}
-.api-error.show{display:block}
 
 .rank-note{font-size:9px;color:var(--muted);margin:-4px 2px 9px;line-height:1.35}
 </style>
@@ -96,17 +88,14 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
   <div class="location"><span>⌖ Current Location</span><span>Des Moines, IA</span></div>
 </header>
 <div class="content">
-  <div class="phase2-note"><strong>Phase 2 POC:</strong> Scout now consumes a normalized tee-time inventory layer. foreUP, Club Caddie and direct-course adapters are simulated until approved API credentials are connected.</div>
   <div class="finder">
     <h2>Flyover Scout</h2>
     <p>Set your preferences and Scout will rank the best available rounds for you.</p>
     <div class="quick"><button id="quickMorning">Morning</button><button id="quickFour">4 Players</button></div>
     <button class="find-btn" id="openRefine">REFINE & FIND MY ROUND</button>
-    <div class="api-status"><span class="api-status-dot" id="apiStatusDot"></span><span id="apiStatusText">Checking Flyover API…</span></div>
-    <div class="api-error" id="apiError">Flyover API is unavailable. Showing local prototype recommendations.</div>
   </div>
 
-  <div class="demo-note"><strong>Prototype data:</strong> Courses are real public Des Moines-area golf courses. Tee times, availability, prices, ratings and Flyover Scores are demo values until live booking feeds are connected.</div>
+  <div class="prototype-status"><span class="api-status-dot" id="apiStatusDot"></span><div><strong id="apiStatusTitle">Prototype mode · Checking connection</strong><span id="apiStatusText">Real courses with demo tee times, prices and Flyover Scores.</span></div></div>
 
   <div class="pick-hero" id="scoutResult">
     <div class="pick-kicker">FLYOVER PICK</div>
@@ -221,10 +210,10 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 </section>
 
 <nav>
-<button class="nav active" data-nav="home"><b>⌂</b>Home</button>
-<button class="nav"><b>⌕</b>Explore</button>
-<button class="nav"><b>♡</b>Saved</button>
-<button class="nav"><b>▣</b>Rounds</button>
+<button class="nav active" data-nav="home" aria-label="Home"><b>⌂</b>Home</button>
+<button class="nav" disabled aria-label="Explore, coming soon"><b>⌕</b>Explore<small>SOON</small></button>
+<button class="nav" disabled aria-label="Saved, coming soon"><b>♡</b>Saved<small>SOON</small></button>
+<button class="nav" disabled aria-label="Rounds, coming soon"><b>▣</b>Rounds<small>SOON</small></button>
 </nav>
 </div>
 
@@ -343,20 +332,20 @@ const API_BASE_URL="http://localhost:3000";
 let currentApiRecommendations=[];
 let selectedApiRecommendation=null;
 
-function setApiStatus(isOnline,serviceName=""){
+function setApiStatus(isOnline){
   const dot=document.getElementById("apiStatusDot");
+  const title=document.getElementById("apiStatusTitle");
   const text=document.getElementById("apiStatusText");
-  const error=document.getElementById("apiError");
-  if(!dot||!text)return;
+  if(!dot||!title||!text)return;
   dot.classList.remove("live","offline");
   if(isOnline){
     dot.classList.add("live");
-    text.textContent=`API connected · ${serviceName||"flyover-golf-api"}`;
-    if(error)error.classList.remove("show");
+    title.textContent="Prototype mode · API connected";
+    text.textContent="Real courses with demo tee times, prices and Flyover Scores.";
   }else{
     dot.classList.add("offline");
-    text.textContent="API offline · local fallback active";
-    if(error)error.classList.add("show");
+    title.textContent="Prototype mode · Local fallback";
+    text.textContent="The API is offline, so Scout is showing local demo recommendations.";
   }
 }
 
@@ -365,7 +354,7 @@ async function checkApiHealth(){
     const r=await fetch(`${API_BASE_URL}/health`);
     if(!r.ok)throw new Error("health");
     const data=await r.json();
-    setApiStatus(true,data.service);
+    setApiStatus(true);
     return true;
   }catch(e){
     setApiStatus(false);
@@ -639,6 +628,7 @@ renderScout();$("scoutPanel").classList.remove("show");$("scoutResult").scrollIn
 $("refineScout").onclick=$("openRefine").onclick=()=>{$("scoutPanel").classList.toggle("show");if($("scoutPanel").classList.contains("show"))$("scoutPanel").scrollIntoView({behavior:"smooth",block:"start"})};
 $("quickMorning").onclick=()=>{$("prefWhen").value="morning";renderScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";renderScout()};
 $("backHome").onclick=()=>showScreen("home");
+document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:"smooth"})};
 refreshInventory().then(async()=>{renderScout();const online=await checkApiHealth();if(online)await runScoutFromApi();});
 </script>
 </body>
