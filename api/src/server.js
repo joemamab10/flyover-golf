@@ -4,6 +4,7 @@ import { config, getPublicConfig } from "./config/index.js";
 import { courses } from "./courses/courses.js";
 import { loadInventory } from "./tee-times/inventoryService.js";
 import { getScoutResults } from "./scout/recommendations.js";
+import { ProviderError } from "./providers/ProviderError.js";
 
 const app = express();
 
@@ -55,6 +56,18 @@ app.post("/api/scout/recommendations", async (req, res) => {
     inventoryCount: inventory.length,
     recommendations,
     inventory
+  });
+});
+
+app.use((error, _req, res, _next) => {
+  if (error instanceof ProviderError) {
+    res.status(error.status).json(error.toJSON());
+    return;
+  }
+
+  console.error(error);
+  res.status(500).json({
+    error: { code: "INTERNAL_ERROR", message: "An unexpected error occurred." }
   });
 });
 

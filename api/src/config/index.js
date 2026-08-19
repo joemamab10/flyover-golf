@@ -38,6 +38,25 @@ function providerConfig({ id, label, baseUrlEnv, apiKeyEnv }) {
   };
 }
 
+function foreUpConfig() {
+  const base = providerConfig({
+    id: "foreup",
+    label: "foreUP",
+    baseUrlEnv: "FOREUP_API_BASE_URL",
+    apiKeyEnv: "FOREUP_API_KEY"
+  });
+
+  const authHeader = readString("FOREUP_AUTH_HEADER");
+
+  return {
+    ...base,
+    authHeader,
+    authScheme: readString("FOREUP_AUTH_SCHEME"),
+    requestTimeoutMs: readNumber("FOREUP_REQUEST_TIMEOUT_MS", 8000),
+    configured: Boolean(base.configured && authHeader)
+  };
+}
+
 export const config = Object.freeze({
   env: readString("NODE_ENV", "development"),
   port: readNumber("PORT", 3000),
@@ -48,14 +67,7 @@ export const config = Object.freeze({
   ]),
 
   providers: Object.freeze({
-    foreup: Object.freeze(
-      providerConfig({
-        id: "foreup",
-        label: "foreUP",
-        baseUrlEnv: "FOREUP_API_BASE_URL",
-        apiKeyEnv: "FOREUP_API_KEY"
-      })
-    ),
+    foreup: Object.freeze(foreUpConfig()),
 
     clubcaddie: Object.freeze(
       providerConfig({

@@ -58,3 +58,15 @@ When authorized credentials and provider documentation arrive:
 3. Implement the provider HTTP request inside that adapter's `search()` method.
 4. Continue normalizing responses to Flyover's existing tee-time contract.
 5. Set `isLive: true` only for actual provider inventory.
+
+## foreUP request shell
+
+The foreUP adapter now provides configuration validation, configurable auth-header
+construction, request timeouts, JSON handling, and standardized provider errors.
+It deliberately does not assume foreUP's endpoint path, request parameters, auth
+header/scheme, or response shape.
+
+Configure `FOREUP_AUTH_HEADER` and, when the official contract requires one,
+`FOREUP_AUTH_SCHEME`. `FOREUP_REQUEST_TIMEOUT_MS` defaults to 8000. Until the
+authorized request and response contract is implemented in `search()`, foreUP
+courses continue to return the existing POC inventory with `isLive: false`.
