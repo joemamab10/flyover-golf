@@ -1,13 +1,23 @@
+import { config } from "../config/index.js";
 import { InventoryProvider } from "./InventoryProvider.js";
 
 export class ClubCaddieProvider extends InventoryProvider {
   constructor() {
     super("clubcaddie", "Club Caddie");
+    this.config = config.providers.clubcaddie;
   }
 
   async search(course, date, players) {
-    // POC ONLY.
-    // Replace with an authorized Club Caddie API/integration when available.
+    if (this.config.configured) {
+      // Keep POC behavior until the authorized Club Caddie integration
+      // contract is known. The real provider HTTP request will live here.
+      return this.searchPoc(course, date, players);
+    }
+
+    return this.searchPoc(course, date, players);
+  }
+
+  async searchPoc(course, _date, players) {
     const raw = course.demoTimes.map((slot, index) => ({
       teeTime: slot.time,
       hour: slot.hour,

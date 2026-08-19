@@ -1,13 +1,24 @@
+import { config } from "../config/index.js";
 import { InventoryProvider } from "./InventoryProvider.js";
 
 export class ForeUpProvider extends InventoryProvider {
   constructor() {
     super("foreup", "foreUP");
+    this.config = config.providers.foreup;
   }
 
   async search(course, date, players) {
-    // POC ONLY.
-    // Replace this simulated response with an authorized foreUP API request.
+    if (this.config.configured) {
+      // Credentials are now available, but we intentionally do not guess
+      // foreUP's authorized endpoint/contract. The real HTTP implementation
+      // belongs here after Flyover receives the official integration docs.
+      return this.searchPoc(course, date, players);
+    }
+
+    return this.searchPoc(course, date, players);
+  }
+
+  async searchPoc(course, date, players) {
     const raw = {
       courseId: course.providerCourseId,
       date,
