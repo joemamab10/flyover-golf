@@ -83,6 +83,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 .api-error{display:none;margin-top:10px;padding:9px 10px;border-radius:10px;background:#fff6f3;border:1px solid #ead3cc;color:#8b4c42;font-size:9px;line-height:1.35}
 .api-error.show{display:block}
 
+.rank-note{font-size:9px;color:var(--muted);margin:-4px 2px 9px;line-height:1.35}
 </style>
 </head>
 <body>
@@ -135,7 +136,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
     <div class="scout-summary" id="scoutSummary"></div>
   </div>
 
-  <div class="supporting-title">OTHER STRONG MATCHES</div>
+  <div class="supporting-title">OTHER STRONG MATCHES</div><div class="rank-note">Scout shows the best available tee time from each course. Open a course to see all of its times.</div>
   <div class="reco-list">
     <button class="reco-mini"><span class="mini-kicker">💰 BEST VALUE</span><span class="scorebadge">89<small>SCORE</small></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
     <button class="reco-mini"><span class="mini-kicker">⚡ PLAY SOON</span><span class="scorebadge">86<small>SCORE</small></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
@@ -387,7 +388,10 @@ async function fetchScoutRecommendations(){
   });
   if(!r.ok)throw new Error(`Scout API ${r.status}`);
   const data=await r.json();
-  return data.recommendations||[];
+  return {
+    recommendations:data.recommendations||[],
+    inventory:data.inventory||data.recommendations||[]
+  };
 }
 
 function buildApiReason(item){
@@ -404,7 +408,6 @@ function buildApiReason(item){
 
 function renderApiRecommendations(items){
   if(!items.length)return false;
-  currentApiRecommendations=items;
   const best=items[0],hero=document.getElementById("scoutResult");
   hero.querySelector(".scorebadge").innerHTML=`${best.flyoverScore}<small>SCORE</small>`;
   hero.querySelector("h3").textContent=`${best.courseName.replace(" Golf Course","")} · ${best.time}`;
@@ -459,9 +462,10 @@ function openApiBooking(item){
 
 async function runScoutFromApi(){
   try{
-    const items=await fetchScoutRecommendations();
+    const result=await fetchScoutRecommendations();
+    currentApiRecommendations=result.inventory;
     setApiStatus(true,"flyover-golf-api");
-    renderApiRecommendations(items);
+    renderApiRecommendations(result.recommendations);
     return true;
   }catch(e){
     console.warn("API unavailable; using local fallback",e);

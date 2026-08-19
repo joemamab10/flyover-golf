@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import { courses } from "./courses/courses.js";
 import { loadInventory } from "./tee-times/inventoryService.js";
-import { getRecommendations } from "./scout/recommendations.js";
+import { getScoutResults } from "./scout/recommendations.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -26,10 +26,13 @@ app.get("/api/tee-times", async (req, res) => {
 });
 
 app.post("/api/scout/recommendations", async (req, res) => {
-  const recommendations = await getRecommendations(req.body || {});
+  const { recommendations, inventory } = await getScoutResults(req.body || {});
+
   res.json({
     count: recommendations.length,
-    recommendations
+    inventoryCount: inventory.length,
+    recommendations,
+    inventory
   });
 });
 
