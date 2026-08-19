@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Flyover Golf Prototype</title>
+<style>
+:root{--green:#113b2e;--green2:#285f42;--cream:#f7f3e8;--gold:#d4a037;--ink:#17201b;--muted:#6f7972;--line:#e3e6e0;--white:#fff;--soft:#eef3ed}
+*{box-sizing:border-box} body{margin:0;background:#e9ece7;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.phone{max-width:430px;min-height:100vh;margin:auto;background:var(--cream);position:relative;padding-bottom:78px;box-shadow:0 0 40px #0001}
+header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 16px}.brand{display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:.04em}.flag{font-size:25px;color:#fff}.logo small{display:block;font-size:9px;letter-spacing:.38em;color:var(--gold);margin-top:-2px}
+.iconbtn{border:0;background:#ffffff18;color:#fff;border-radius:50%;width:38px;height:38px}.hello{margin-top:20px;font-size:14px;color:#dbe5df}.heroq{font-size:24px;font-weight:800;margin:4px 0 14px}
+.searchbar{background:#fff;border-radius:14px;padding:13px 14px;color:#66716a;display:flex;gap:8px;align-items:center}
+.location{margin-top:10px;font-size:12px;color:#e3ece7;display:flex;justify-content:space-between}
+.content{padding:16px}.titlebar{display:flex;justify-content:space-between;align-items:center;margin:3px 0 10px}.titlebar h2{font-size:17px;margin:0}.link{border:0;background:none;color:var(--green2);font-weight:800;font-size:12px}
+.course{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;margin-bottom:12px;box-shadow:0 5px 16px #1533220b}
+.photo{height:116px;background:linear-gradient(155deg,#78935e,#315f42 55%,#173d2e);position:relative;overflow:hidden}
+.photo:before{content:"";position:absolute;left:-10%;right:-10%;bottom:-32px;height:82px;border-radius:50%;background:#8dac67;transform:rotate(-4deg)}
+.photo:after{content:"⚑";position:absolute;right:28%;bottom:25px;color:#fff;font-size:28px}.coursebody{padding:12px}.row{display:flex;justify-content:space-between;gap:12px}.course h3{margin:0 0 4px;font-size:15px}.meta{font-size:12px;color:var(--muted)}.price{text-align:right;font-weight:900;color:var(--green);font-size:18px}.price small{display:block;font-size:9px;color:var(--muted);font-weight:600}
+.badge{display:inline-block;background:#e5f1e7;color:var(--green2);font-size:9px;font-weight:900;border-radius:5px;padding:4px 6px;margin-top:8px}
+.times{display:flex;gap:7px;margin-top:10px;overflow:auto}.time{min-width:76px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px;text-align:center;font-weight:800;font-size:12px}.time span{display:block;color:var(--green2);margin-top:3px}
+.filters{background:#fff;padding:12px 16px;border-bottom:1px solid var(--line)}.filtergrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px}.pill{border:1px solid var(--line);background:#fff;border-radius:10px;padding:9px 7px;font-size:11px;font-weight:700}
+.segment{display:grid;grid-template-columns:1fr 1fr;background:#edf0eb;border-radius:12px;padding:3px;margin-top:10px}.segment button{border:0;background:transparent;padding:9px;border-radius:9px;font-weight:800}.segment .active{background:var(--green2);color:#fff}
+.back{border:0;background:none;color:#fff;font-size:20px;padding:0}.coursehero{height:185px;background:linear-gradient(155deg,#92a96e,#3d7049 55%,#173d2e);position:relative}.coursehero:after{content:"⚑";position:absolute;left:58%;top:62px;color:white;font-size:40px}
+.detail{background:#fff;border-radius:22px 22px 0 0;margin-top:-20px;position:relative;padding:18px}.detail h1{font-size:21px;margin:0 0 4px}.stars{color:var(--gold);font-size:12px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin:17px 0;text-align:center}.stat strong{display:block}.stat span{font-size:9px;color:var(--muted)}
+.datebar{display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;margin-top:10px;font-weight:800}
+.slot{display:flex;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--line);font-weight:750}.slot button{border:0;background:none;color:var(--green);font-weight:900}
+.formcard{background:#fff;border-radius:17px;padding:14px;margin-bottom:12px}.formcard h3{font-size:11px;color:var(--muted);margin:0 0 10px}.selection{display:flex;gap:10px}.thumb{width:72px;height:55px;border-radius:10px;background:linear-gradient(145deg,#8ca46a,#275b3e)}.playerrow{display:flex;gap:9px}.player{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:#fff}.player.active{background:var(--green2);color:#fff}.checkrow{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.total{display:flex;justify-content:space-between;font-size:19px;font-weight:900;margin:16px 0}.primary{width:100%;border:0;background:var(--gold);color:#fff;border-radius:12px;padding:14px;font-weight:900}
+.confirm{text-align:center;padding:40px 18px}.check{width:72px;height:72px;border:3px solid var(--gold);border-radius:50%;display:grid;place-items:center;margin:0 auto 18px;font-size:35px;color:var(--green)}.confirm h1{font-size:25px}.confirmcard{text-align:left;background:#fff;border-radius:17px;padding:14px;margin:24px 0}.secondary{width:100%;border:1px solid var(--green2);background:#fff;color:var(--green2);border-radius:12px;padding:13px;font-weight:900;margin-bottom:9px}
+nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;width:100%;background:#fff;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);padding:8px 6px calc(8px + env(safe-area-inset-bottom));z-index:10}.nav{border:0;background:none;color:#89918c;font-size:10px}.nav b{display:block;font-size:18px;margin-bottom:2px}.nav.active{color:var(--green2)}
+.screen{display:none}.screen.active{display:block}.map{height:360px;background:linear-gradient(45deg,#e8e7d8,#d8e1d3);position:relative;border-radius:15px;margin-top:10px;overflow:hidden}.road{position:absolute;width:500px;height:22px;background:#f7f5e9;transform:rotate(-35deg);top:160px;left:-40px;border:1px solid #d8d4c5}.marker{position:absolute;width:48px;height:48px;border-radius:50%;background:var(--green2);color:#fff;display:grid;place-items:center;font-weight:900;border:4px solid #fff}.m1{left:40px;top:70px}.m2{right:48px;top:115px}.m3{left:150px;top:220px}.m4{right:80px;top:260px}
+
+.smartbox{background:#fff;border-radius:18px;padding:14px;margin-bottom:14px;border:1px solid var(--line);box-shadow:0 6px 18px #1533220b}.smarttitle{font-size:12px;font-weight:900;color:var(--green);letter-spacing:.04em}.smarttext{font-size:20px;font-weight:900;margin:3px 0 10px}.smartfilters{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.smartchip{border:1px solid var(--line);background:#fafbf8;border-radius:10px;padding:9px;text-align:left;font-size:11px}.smartchip b{display:block;color:var(--green)}.smartgo{margin-top:9px;width:100%;border:0;background:var(--green);color:#fff;border-radius:11px;padding:11px;font-weight:900}.reco-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:16px}.reco{border:0;border-radius:16px;padding:13px;text-align:left;min-height:126px;position:relative;overflow:hidden}.reco.dark{background:var(--green);color:#fff}.reco.gold{background:#f3e6bf;color:#3d3216}.reco.light{background:#fff;color:var(--ink);border:1px solid var(--line)}.reco .kicker{font-size:9px;font-weight:900;letter-spacing:.08em}.reco strong{display:block;font-size:16px;line-height:1.15;margin:16px 0 5px}.reco small{font-size:10px;opacity:.8;line-height:1.35}.reco .arrow{position:absolute;right:11px;bottom:10px;font-size:18px}.sectioncopy{font-size:11px;color:var(--muted);margin-top:3px}.midwest-strip{background:linear-gradient(135deg,#234c38,#6f8a5d);color:#fff;border-radius:17px;padding:15px;margin:4px 0 16px}.midwest-strip .eyebrow{font-size:9px;font-weight:900;letter-spacing:.1em;color:#e7c369}.midwest-strip strong{display:block;font-size:18px;margin:5px 0}.midwest-strip p{font-size:11px;margin:0 0 10px;color:#e4ebe6}.midwest-strip button{border:1px solid #ffffff55;background:#ffffff15;color:#fff;border-radius:9px;padding:8px 10px;font-weight:800;font-size:11px}
+
+.scorebadge{
+  position:absolute;top:10px;right:10px;width:48px;height:48px;border-radius:50%;
+  display:grid;place-items:center;text-align:center;font-weight:900;font-size:16px;
+  background:#fff;color:var(--green);border:3px solid var(--gold);box-shadow:0 5px 14px #0002
+}
+.scorebadge small{display:block;font-size:7px;line-height:1;color:var(--muted);letter-spacing:.05em}
+.reco .scorebadge{top:9px;right:9px;width:45px;height:45px;font-size:15px}
+.reco.dark .scorebadge{background:#fff;color:var(--green)}
+.scorepanel{background:#f6f8f3;border:1px solid var(--line);border-radius:16px;padding:14px;margin:15px 0}
+.scoretop{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.scorecircle{width:66px;height:66px;border-radius:50%;display:grid;place-items:center;background:var(--green);color:#fff;border:4px solid var(--gold);flex:0 0 auto}
+.scorecircle strong{font-size:22px;line-height:1}.scorecircle span{font-size:8px;display:block;letter-spacing:.06em}
+.scorewhy strong{display:block;font-size:14px}.scorewhy p{margin:4px 0 0;font-size:11px;color:var(--muted);line-height:1.35}
+.factor{display:grid;grid-template-columns:78px 1fr 28px;align-items:center;gap:8px;margin:7px 0;font-size:10px}
+.track{height:7px;background:#dde6dd;border-radius:999px;overflow:hidden}.fill{height:100%;background:var(--green2);border-radius:999px}
+.factor b{text-align:right;color:var(--green)}
+.scout-result{display:none;background:#fff;border:2px solid #bfd0c3;border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 8px 20px #15332212}
+.scout-result.show{display:block}.scout-result .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.scout-result h3{margin:2px 0 4px;font-size:17px}.scout-result p{margin:0;font-size:11px;color:var(--muted)}
+.scout-result button{margin-top:11px;width:100%;border:0;background:var(--green);color:#fff;border-radius:11px;padding:11px;font-weight:900}
+
+
+/* UI POLISH PASS */
+:root{
+  --radius-sm:10px;--radius-md:14px;--radius-lg:18px;--radius-xl:22px;
+  --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;
+}
+body{line-height:1.35}
+.phone{padding-bottom:84px}
+header{padding:calc(16px + env(safe-area-inset-top)) 18px 18px}
+.hello{margin-top:18px}.heroq{margin:4px 0 14px;line-height:1.15}
+.searchbar{min-height:48px;border-radius:var(--radius-md);padding:0 14px}
+.location{margin-top:8px;line-height:1.3}
+.content{padding:16px}
+.titlebar{margin:4px 0 12px}.titlebar h2{line-height:1.2}.link{padding:6px 0}
+.smart{padding:14px;border-radius:var(--radius-lg);margin-bottom:16px}.smarttitle{margin-bottom:10px}
+.smartgrid{gap:8px}.smart .pill{min-height:42px;padding:9px 10px;border-radius:var(--radius-sm)}
+.findbtn{min-height:46px;border-radius:var(--radius-md);margin-top:12px}
+.reco-grid{gap:10px;margin-bottom:18px}.reco{min-height:118px;border-radius:var(--radius-lg);padding:14px}.reco strong{margin-top:14px;line-height:1.2}.reco small{margin-top:6px;line-height:1.3}.arrow{right:14px;bottom:12px}
+.scout-result{border-radius:var(--radius-lg);padding:14px;margin-bottom:14px}.scout-result button{min-height:44px;border-radius:var(--radius-sm);padding:0 12px}
+.course{border-radius:var(--radius-lg);margin-bottom:14px}.photo{height:120px}.coursebody{padding:14px}.course h3{line-height:1.2}.meta{line-height:1.35}.badge{margin-top:8px;padding:5px 7px;border-radius:6px}
+.times{gap:8px;margin-top:12px}.time{min-width:78px;min-height:48px;border-radius:var(--radius-sm);padding:8px 9px}
+.filters{padding:12px 16px}.filtergrid{gap:8px}.pill{min-height:40px;border-radius:var(--radius-sm)}
+.segment{border-radius:var(--radius-md);margin-top:10px}.segment button{min-height:38px;border-radius:var(--radius-sm)}
+.detail{border-radius:var(--radius-xl) var(--radius-xl) 0 0;padding:18px}.detail h1{line-height:1.2}
+.scorepanel{border-radius:var(--radius-lg);padding:14px;margin:16px 0}.scoretop{gap:12px;margin-bottom:12px}.scorewhy p{margin-top:5px;line-height:1.4}.factor{grid-template-columns:76px 1fr 28px;gap:8px;margin:8px 0}
+.stats{margin:18px 0 16px}.datebar{padding:13px 0;margin-top:10px}.slot{padding:14px 2px}
+.formcard{border-radius:var(--radius-lg);padding:14px;margin-bottom:12px}.formcard h3{margin-bottom:10px}.selection{gap:12px}.thumb{border-radius:var(--radius-sm)}.playerrow{gap:10px}.player{width:42px;height:42px}.checkrow{padding:12px 0}
+.total{margin:18px 0}.primary,.secondary{min-height:48px;border-radius:var(--radius-md);padding:0 14px}
+.confirm{padding:36px 18px}.confirmcard{border-radius:var(--radius-lg);padding:14px;margin:22px 0}
+.scorebadge{width:46px;height:46px}.reco .scorebadge{width:44px;height:44px}
+nav{padding:9px 6px calc(9px + env(safe-area-inset-bottom))}.nav{padding:4px 2px}
+@media(max-width:380px){.content{padding:14px}.reco-grid{grid-template-columns:1fr}.smartgrid{grid-template-columns:1fr 1fr}.coursebody{padding:12px}.reco{min-height:108px}}
+
+
+/* Flyover Score spacing polish */
+.scorebadge{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:2px;
+  padding:5px;
+  line-height:1;
+}
+.scorebadge small{
+  margin:0;
+  line-height:1;
+}
+.reco{
+  padding-right:66px;
+}
+.reco .scorebadge{
+  top:12px;
+  right:12px;
+}
+.scorecircle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:7px;
+}
+.scorecircle > div{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  line-height:1;
+}
+.scorecircle strong,
+.scorecircle span{
+  margin:0;
+  line-height:1;
+}
+.scoretop{
+  gap:16px;
+}
+.scorewhy{
+  min-width:0;
+  padding-right:2px;
+}
+.scout-result .top{
+  gap:16px;
+  align-items:center;
+}
+.scout-result .scorecircle{
+  margin-left:auto;
+}
+.photo .scorebadge{
+  top:12px;
+  right:12px;
+}
+
+
+/* Home hierarchy refinement */
+.pick-hero{
+  position:relative;
+  background:var(--green);
+  color:#fff;
+  border-radius:18px;
+  padding:18px;
+  margin-bottom:14px;
+  box-shadow:0 10px 24px #15332218;
+  overflow:hidden;
+}
+.pick-hero:after{
+  content:"";
+  position:absolute;
+  width:150px;height:150px;border-radius:50%;
+  right:-54px;top:-52px;
+  background:#ffffff0d;
+}
+.pick-kicker{
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:var(--gold);
+  margin-bottom:6px;
+}
+.pick-hero h3{
+  margin:0 64px 5px 0;
+  font-size:20px;
+  line-height:1.15;
+}
+.pick-meta{
+  font-size:11px;
+  color:#dfe9e3;
+  margin-bottom:12px;
+}
+.pick-reason{
+  font-size:11px;
+  line-height:1.4;
+  color:#f0f5f2;
+  margin-bottom:14px;
+}
+.pick-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:8px;
+}
+.pick-primary{
+  border:0;
+  background:var(--gold);
+  color:#fff;
+  border-radius:11px;
+  padding:11px 12px;
+  font-weight:900;
+}
+.pick-secondary{
+  border:1px solid #ffffff33;
+  background:#ffffff12;
+  color:#fff;
+  border-radius:11px;
+  padding:11px 12px;
+  font-weight:800;
+}
+.pick-hero .scorebadge{
+  top:16px;
+  right:16px;
+}
+.supporting-title{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.07em;
+  color:var(--muted);
+  margin:18px 2px 9px;
+}
+.reco-list{
+  display:grid;
+  gap:8px;
+}
+.reco-mini{
+  position:relative;
+  width:100%;
+  border:1px solid var(--line);
+  background:#fff;
+  border-radius:14px;
+  padding:12px 58px 12px 12px;
+  text-align:left;
+  color:var(--ink);
+  box-shadow:0 4px 12px #1533220a;
+}
+.reco-mini .mini-kicker{
+  display:block;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.06em;
+  color:var(--green2);
+  margin-bottom:3px;
+}
+.reco-mini strong{
+  display:block;
+  font-size:13px;
+  line-height:1.2;
+  margin-bottom:2px;
+}
+.reco-mini small{
+  display:block;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.3;
+}
+.reco-mini .scorebadge{
+  width:40px;height:40px;
+  top:10px;right:10px;
+  font-size:13px;
+  border-width:2px;
+}
+.reco-mini .scorebadge small{font-size:6px}
+.home-divider{
+  height:1px;
+  background:var(--line);
+  margin:18px 0;
+}
+
+</style>
+</head>
+<body>
+<div class="phone">
+<section id="home" class="screen active">
+<header>
+ <div class="brand"><div class="logo"><span class="flag">⚑</span><div>FLYOVER<small>GOLF</small></div></div><button class="iconbtn">♢</button></div>
+ <div class="hello">Good evening 👋</div><div class="heroq">Let us find your round.</div>
+ <div class="searchbar" id="goSearch">⌕ <span>Search a course, city, or tee time</span></div>
+ <div class="location"><span>⌖ Current Location</span><span>Des Moines, IA</span></div>
+</header>
+<div class="content">
+ <div class="smartbox">
+  <div class="smarttitle">FLYOVER SCOUT</div>
+  <div class="smarttext">How do you want to play?</div>
+  <div class="smartfilters">
+   <button class="smartchip"><b>WHEN</b>Today · Morning</button>
+   <button class="smartchip"><b>PLAYERS</b>4 golfers</button>
+   <button class="smartchip"><b>DISTANCE</b>Within 40 min</button>
+   <button class="smartchip"><b>BUDGET</b>Under $60</button>
+  </div>
+  <button class="smartgo" id="findMyRound">FIND MY BEST ROUND</button>
+ </div>
+
+ <div class="titlebar"><div><h2>Flyover picks</h2><div class="sectioncopy">The best options based on time, price, drive and course quality.</div></div></div>
+ <div class="pick-hero" id="scoutResult">
+   <div class="pick-kicker">FLYOVER PICK</div>
+   <span class="scorebadge">92<small>SCORE</small></span>
+   <h3>Waveland Golf Course · 8:30 AM</h3>
+   <div class="pick-meta">$42 · 12 min away · ★ 4.6 · 72° and light wind</div>
+   <div class="pick-reason">Best overall match for your morning, budget, drive time, and 4-player preferences.</div>
+   <div class="pick-actions">
+     <button class="pick-primary" id="openScoutPick">VIEW & BOOK</button>
+     <button class="pick-secondary" id="refineScout">REFINE</button>
+   </div>
+ </div>
+
+ <div class="supporting-title">OTHER STRONG MATCHES</div>
+ <div class="reco-list">
+   <button class="reco-mini" data-reco="value">
+     <span class="mini-kicker">💰 BEST VALUE</span>
+     <span class="scorebadge">89<small>SCORE</small></span>
+     <strong>Bos Landen · 7:52 AM</strong>
+     <small>$36 · Save $12 vs nearby average</small>
+   </button>
+   <button class="reco-mini" data-reco="soon">
+     <span class="mini-kicker">⚡ PLAY SOON</span>
+     <span class="scorebadge">86<small>SCORE</small></span>
+     <strong>Hyperion · 7:40 AM</strong>
+     <small>Leave in 22 min · $45</small>
+   </button>
+   <button class="reco-mini" data-reco="weather">
+     <span class="mini-kicker">☀️ BEST WEATHER</span>
+     <span class="scorebadge">84<small>SCORE</small></span>
+     <strong>Echo Valley · 9:00 AM</strong>
+     <small>72° · light wind · $48</small>
+   </button>
+ </div>
+
+ <div class="midwest-strip">
+   <div class="eyebrow">FLYOVER FIND</div>
+   <strong>Hidden Gem of the Week</strong>
+   <p>Great public golf that national booking apps can overlook.</p>
+   <button id="hiddenGem">EXPLORE BOS LANDEN</button>
+ </div>
+
+ <div class="titlebar"><div><h2>More nearby tee times</h2><div class="sectioncopy">Browse everything available around you.</div></div><button class="link" id="viewAll">See all</button></div>
+ <div id="featured"></div>
+</div>
+</section>
+
+<section id="search" class="screen">
+<header><div class="brand"><button class="back" data-home>‹</button><strong>Search</strong><button class="iconbtn">☷</button></div></header>
+<div class="filters">
+ <div class="filtergrid"><button class="pill">Des Moines, IA</button><button class="pill">Today</button><button class="pill">4 Players</button></div>
+ <div class="segment"><button id="listTab" class="active">LIST</button><button id="mapTab">MAP</button></div>
+</div>
+<div class="content" id="searchList"></div>
+<div class="content" id="mapView" style="display:none"><div class="map"><div class="road"></div><div class="marker m1">$36</div><div class="marker m2">$42</div><div class="marker m3">$28</div><div class="marker m4">$45</div></div></div>
+</section>
+
+<section id="course" class="screen">
+<header><div class="brand"><button class="back" data-search>‹</button><strong>Course</strong><button class="iconbtn">♡</button></div></header>
+<div class="coursehero"></div>
+<div class="detail">
+ <h1 id="courseName">Bos Landen Golf Club</h1><div class="meta" id="courseCity">Pella, IA · 8.4 mi</div><div class="stars">★ 4.5 (623)</div>
+ <div class="scorepanel">
+   <div class="scoretop">
+     <div class="scorecircle"><div><strong id="detailScore">89</strong><span>FLYOVER</span></div></div>
+     <div class="scorewhy"><strong id="scoreLabel">Great match for you</strong><p id="scoreReason">Strong value, convenient drive and a morning tee time that fits your preferences.</p></div>
+   </div>
+   <div class="factor"><span>PRICE</span><div class="track"><div id="barPrice" class="fill" style="width:94%"></div></div><b id="factorPrice">94</b></div>
+   <div class="factor"><span>DRIVE TIME</span><div class="track"><div id="barDrive" class="fill" style="width:82%"></div></div><b id="factorDrive">82</b></div>
+   <div class="factor"><span>COURSE</span><div class="track"><div id="barCourse" class="fill" style="width:88%"></div></div><b id="factorCourse">88</b></div>
+   <div class="factor"><span>WEATHER</span><div class="track"><div id="barWeather" class="fill" style="width:90%"></div></div><b id="factorWeather">90</b></div>
+ </div>
+ <div class="stats"><div class="stat"><strong>18</strong><span>HOLES</span></div><div class="stat"><strong>72.1</strong><span>RATING</span></div><div class="stat"><strong>135</strong><span>SLOPE</span></div><div class="stat"><strong>4.5</strong><span>RATING</span></div></div>
+ <div class="datebar"><span>‹</span><span>Today</span><span>›</span></div>
+ <div id="slots"></div>
+</div>
+</section>
+
+<section id="booking" class="screen">
+<header><div class="brand"><button class="back" data-course>‹</button><strong>Tee Time</strong><span></span></div></header>
+<div class="content">
+ <div class="formcard"><h3>YOUR SELECTION</h3><div class="selection"><div class="thumb"></div><div><strong id="bookCourse">Bos Landen Golf Club</strong><div class="meta" id="bookMeta">Pella, IA</div><div class="meta" id="bookTime">Today · 7:52 AM</div></div></div></div>
+ <div class="formcard"><h3>PLAYERS</h3><div class="playerrow"><button class="player">1</button><button class="player active">2</button><button class="player">3</button><button class="player">4</button></div></div>
+ <div class="formcard"><h3>ADD-ONS</h3><div class="checkrow"><span>☑ Cart</span><strong>$14</strong></div><div class="checkrow"><span>□ Range balls</span><strong>$6</strong></div></div>
+ <div class="total"><span>TOTAL</span><span id="total">$86.00</span></div>
+ <button class="primary" id="confirmBtn">CONTINUE TO BOOK</button>
+</div>
+</section>
+
+<section id="confirmed" class="screen">
+<header><div class="brand"><div class="logo"><span class="flag">⚑</span><div>FLYOVER<small>GOLF</small></div></div><span></span></div></header>
+<div class="confirm">
+ <div class="check">✓</div><h1>Booking Confirmed!</h1><p class="meta">Your round is locked in. We’ve saved it to your bookings.</p>
+ <div class="confirmcard"><strong id="confirmCourse">Bos Landen Golf Club</strong><div class="meta" id="confirmMeta">Pella, IA · Today · 7:52 AM</div><div class="total"><span>2 Players · Cart</span><span id="confirmTotal">$86</span></div></div>
+ <button class="secondary">▣ ADD TO CALENDAR</button><button class="primary" id="backHome">VIEW MY BOOKINGS</button>
+</div>
+</section>
+
+<nav>
+<button class="nav active" data-nav="home"><b>⌂</b>Home</button><button class="nav" data-nav="search"><b>⌕</b>Search</button><button class="nav"><b>▣</b>Bookings</button><button class="nav"><b>♡</b>Saved</button><button class="nav"><b>♙</b>Profile</button>
+</nav>
+</div>
+<script>
+const courses=[
+{name:"Bos Landen Golf Club",city:"Pella, IA",dist:"8.4 mi",price:36,rating:"4.5",score:89,reason:"Exceptional value with a strong morning fit.",factors:{price:96,drive:78,course:88,weather:91},times:["7:20 AM","7:36 AM","7:52 AM","8:08 AM"]},
+{name:"Waveland Golf Course",city:"Des Moines, IA",dist:"12 mi",price:42,rating:"4.6",score:92,reason:"Best balance of price, drive time, course quality and your morning preference.",factors:{price:90,drive:95,course:91,weather:93},times:["8:00 AM","8:30 AM","9:00 AM"]},
+{name:"Hyperion Field Club",city:"Johnston, IA",dist:"14 mi",price:45,rating:"4.8",score:86,reason:"Top course quality and the earliest strong option near you.",factors:{price:84,drive:88,course:97,weather:85},times:["7:40 AM","8:10 AM","8:40 AM"]},
+{name:"Echo Valley Country Club",city:"Norwalk, IA",dist:"16 mi",price:48,rating:"4.6",score:84,reason:"Excellent weather window with a solid overall match.",factors:{price:80,drive:82,course:90,weather:97},times:["8:00 AM","8:30 AM","9:00 AM"]}
+];
+let selected=courses[0],selectedTime="7:52 AM",players=2;
+function card(c){
+ const el=document.createElement("div");el.className="course";
+ el.innerHTML=`<div class="photo"><span class="scorebadge">${c.score}<small>SCORE</small></span></div><div class="coursebody"><div class="row"><div><h3>${c.name}</h3><div class="meta">${c.city} · ${c.dist} · ★ ${c.rating}</div></div><div class="price">$${c.price}<small>18 holes</small></div></div><span class="badge">FLYOVER ${c.score >= 90 ? "PICK" : "MATCH"}</span><div class="times">${c.times.slice(0,3).map(t=>`<button class="time">${t}<span>$${c.price}</span></button>`).join("")}</div></div>`;
+ el.querySelectorAll(".time").forEach((b,i)=>b.onclick=()=>openCourse(c,c.times[i]));
+ el.querySelector(".photo").onclick=()=>openCourse(c,c.times[0]);return el;
+}
+function populate(){
+ const f=document.getElementById("featured"),d=document.getElementById("deals"),s=document.getElementById("searchList");
+ [f,d,s].forEach(x=>x.innerHTML="");
+ courses.slice(0,2).forEach(c=>f.appendChild(card(c)));courses.slice().reverse().slice(0,2).forEach(c=>d.appendChild(card(c)));courses.forEach(c=>s.appendChild(card(c)));
+}
+function show(id){
+ document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");
+ document.querySelectorAll(".nav").forEach(x=>x.classList.toggle("active",x.dataset.nav===id));
+ window.scrollTo(0,0);
+}
+function openCourse(c,t){
+ selected=c;selectedTime=t;
+ document.getElementById("courseName").textContent=c.name;
+ document.getElementById("courseCity").textContent=`${c.city} · ${c.dist}`;
+ document.getElementById("detailScore").textContent=c.score;
+ document.getElementById("scoreLabel").textContent=c.score>=90?"Flyover Pick":"Great match for you";
+ document.getElementById("scoreReason").textContent=c.reason;
+ [["Price","price"],["Drive","drive"],["Course","course"],["Weather","weather"]].forEach(([id,key])=>{
+   document.getElementById("bar"+id).style.width=c.factors[key]+"%";
+   document.getElementById("factor"+id).textContent=c.factors[key];
+ });
+ const slots=document.getElementById("slots");slots.innerHTML="";
+ c.times.forEach(time=>{
+   const r=document.createElement("div");r.className="slot";
+   r.innerHTML=`<span>${time}</span><button>$${c.price}</button>`;
+   r.querySelector("button").onclick=()=>openBooking(c,time);slots.appendChild(r)
+ });
+ show("course")
+}
+function openBooking(c,t){selected=c;selectedTime=t;document.getElementById("bookCourse").textContent=c.name;document.getElementById("bookMeta").textContent=c.city;document.getElementById("bookTime").textContent=`Today · ${t}`;updateTotal();show("booking")}
+function updateTotal(){document.getElementById("total").textContent=`$${selected.price*players+14}.00`}
+document.querySelectorAll(".player").forEach((b,i)=>b.onclick=()=>{players=i+1;document.querySelectorAll(".player").forEach(x=>x.classList.remove("active"));b.classList.add("active");updateTotal()});
+document.getElementById("confirmBtn").onclick=()=>{document.getElementById("confirmCourse").textContent=selected.name;document.getElementById("confirmMeta").textContent=`${selected.city} · Today · ${selectedTime}`;document.getElementById("confirmTotal").textContent=`$${selected.price*players+14}`;show("confirmed")};
+document.getElementById("goSearch").onclick=()=>show("search");document.getElementById("viewAll").onclick=()=>show("search");document.getElementById("backHome").onclick=()=>show("home");
+document.querySelectorAll("[data-home]").forEach(b=>b.onclick=()=>show("home"));document.querySelectorAll("[data-search]").forEach(b=>b.onclick=()=>show("search"));document.querySelectorAll("[data-course]").forEach(b=>b.onclick=()=>show("course"));
+document.querySelectorAll(".nav[data-nav]").forEach(b=>b.onclick=()=>show(b.dataset.nav));
+document.getElementById("mapTab").onclick=()=>{document.getElementById("searchList").style.display="none";document.getElementById("mapView").style.display="block";mapTab.classList.add("active");listTab.classList.remove("active")};
+document.getElementById("listTab").onclick=()=>{document.getElementById("searchList").style.display="block";document.getElementById("mapView").style.display="none";listTab.classList.add("active");mapTab.classList.remove("active")};
+
+const recoMap={best:[courses[1],"8:30 AM"],value:[courses[0],"7:52 AM"],soon:[courses[2],"7:40 AM"],weather:[courses[3],"9:00 AM"]};
+document.querySelectorAll("[data-reco]").forEach(b=>b.onclick=()=>{const x=recoMap[b.dataset.reco];openCourse(x[0],x[1])});
+document.getElementById("findMyRound").onclick=()=>{
+ const result=document.getElementById("scoutResult");
+ result.scrollIntoView({behavior:"smooth",block:"center"});
+};
+document.getElementById("openScoutPick").onclick=()=>openCourse(courses[1],"8:30 AM");
+document.getElementById("refineScout").onclick=()=>document.getElementById("finder").scrollIntoView({behavior:"smooth",block:"start"});
+document.getElementById("hiddenGem").onclick=()=>openCourse(courses[0],"7:52 AM");
+populate();
+</script>
+</body>
+</html>
