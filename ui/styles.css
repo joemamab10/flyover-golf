@@ -6,11 +6,12 @@
 body{margin:0;background:#e9ece7;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
 button,select{font:inherit}button{cursor:pointer}
 .phone{max-width:430px;min-height:100vh;margin:auto;background:var(--cream);padding-bottom:84px;box-shadow:0 0 40px #0001}
-header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 18px}
+header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inset-top)) 18px 18px}#home>header{position:relative;padding-bottom:32px}
 .brand{display:flex;align-items:center;justify-content:space-between}.course-nav{justify-content:flex-start;gap:4px}.logo{display:flex;align-items:center;gap:9px;font-weight:900;letter-spacing:.04em}.flag{font-size:25px}.logo small{display:block;font-size:9px;letter-spacing:.38em;color:var(--gold);margin-top:-2px}
-.hello{margin-top:18px;font-size:13px;color:#dbe5df}.heroq{font-size:24px;font-weight:800;margin:5px 0 12px}
-.location{font-size:11px;color:#dbe5df;display:flex;justify-content:space-between}
+.header-location{position:absolute;top:calc(14px + env(safe-area-inset-top));right:18px;min-height:36px;display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #ffffff24;border-radius:12px;background:#ffffff10}.location-pin{width:16px;display:flex;align-items:center;justify-content:center;flex:0 0 16px;line-height:1;text-align:center;color:var(--gold);font-size:0}.location-pin:before{content:"⌖";display:block;font-size:17px;line-height:1}.header-location span:last-child{display:flex;flex-direction:column;gap:1px}.header-location small{font-size:8px;font-weight:800;letter-spacing:.09em;color:#bfcfc6}.header-location strong{font-size:11px;line-height:1.1;color:#fff}
+.hello{margin-top:20px;font-size:12px;font-weight:700;color:#cbd9d1}.heroq{font-size:27px;line-height:1.12;font-weight:850;letter-spacing:-.025em;margin:5px 0 0}
 .content{padding:16px}
+.home-content{padding-top:0}.home-content>.finder{position:relative;z-index:2;margin-top:-16px}
 .finder{background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px;box-shadow:0 8px 22px #15332210;margin-bottom:14px}
 .finder h2{font-size:16px;margin:0 0 4px}.finder p{margin:0 0 12px;font-size:11px;color:var(--muted);line-height:1.4}
 .quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}

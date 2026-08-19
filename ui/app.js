@@ -246,6 +246,12 @@ async function runScoutFromApi(){
 
 const prefState={holes:"18",ride:"cart",style:"balanced"};
 function $(id){return document.getElementById(id)}
+function setGreeting(){
+  const hour=new Date().getHours();
+  const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
+  document.querySelector("#home .hello").textContent=`${greeting} 👋`;
+}
+setGreeting();
 function clamp(n){return Math.max(0,Math.min(100,Math.round(n)))}
 function getPrefs(){return{when:$("prefWhen").value,players:+$("prefPlayers").value,drive:+$("prefDrive").value,price:+$("prefPrice").value,holes:prefState.holes,ride:prefState.ride,style:prefState.style}}
 function closeScoutSelects(except){
