@@ -34,7 +34,7 @@ header{background:var(--green);color:#fff;padding:calc(14px + env(safe-area-inse
 .scout-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.scout-field label{display:block;font-size:9px;font-weight:900;letter-spacing:.06em;color:var(--muted);margin:0 0 5px 2px}.scout-field select{width:100%;min-height:42px;border:1px solid var(--line);background:#fff;border-radius:11px;padding:0 10px;color:var(--ink)}
 .scout-full{grid-column:1/-1}.scout-toggle-row{display:flex;gap:8px;flex-wrap:wrap}.scout-toggle{border:1px solid var(--line);background:#fff;color:var(--muted);border-radius:999px;padding:8px 10px;font-size:10px;font-weight:800}.scout-toggle.active{background:var(--green);border-color:var(--green);color:#fff}
 .scout-find{width:100%;border:0;background:var(--green);color:#fff;border-radius:12px;padding:12px;font-weight:900;margin-top:4px}.scout-summary{margin-top:10px;padding:10px 11px;border-radius:12px;background:var(--soft);color:var(--green);font-size:10px;font-weight:800;line-height:1.35}
-.supporting-title{font-size:11px;font-weight:900;letter-spacing:.07em;color:var(--muted);margin:18px 2px 9px}.reco-list{display:grid;gap:8px}.reco-mini{position:relative;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 58px 12px 12px;text-align:left;color:var(--ink);box-shadow:0 4px 12px #1533220a}.reco-mini .mini-kicker{display:block;font-size:9px;font-weight:900;letter-spacing:.06em;color:var(--green2);margin-bottom:3px}.reco-mini strong{display:block;font-size:13px;line-height:1.2;margin-bottom:2px}.reco-mini small{display:block;color:var(--muted);font-size:10px;line-height:1.3}.reco-mini .scorebadge{width:40px;height:40px;top:10px;right:10px;font-size:13px;border-width:2px}.reco-mini .scorebadge small{font-size:6px}
+.supporting-title{font-size:11px;font-weight:900;letter-spacing:.07em;color:var(--muted);margin:18px 2px 9px}.reco-list{display:grid;gap:8px}.reco-mini{position:relative;width:100%;border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 62px 12px 12px;text-align:left;color:var(--ink);box-shadow:0 4px 12px #1533220a}.reco-mini .mini-kicker{display:block;font-size:9px;font-weight:900;letter-spacing:.06em;color:var(--green2);margin-bottom:3px}.reco-mini strong{display:block;font-size:13px;line-height:1.2;margin-bottom:2px}.reco-mini small{display:block;color:var(--muted);font-size:10px;line-height:1.3}.reco-score{position:absolute;top:9px;right:10px;width:42px;display:flex;flex-direction:column;align-items:center;gap:4px}.reco-mini .scorebadge{position:static;width:40px;height:40px;padding:0;font-size:14px;border-width:2px}.reco-score-label{font-size:7px;font-weight:900;line-height:1;letter-spacing:.08em;color:var(--muted)}
 .course{background:#fff;border:1px solid var(--line);border-radius:17px;overflow:hidden;margin-bottom:12px;box-shadow:0 5px 16px #1533220b}.photo{height:116px;background:linear-gradient(155deg,#78935e,#315f42 55%,#173d2e);position:relative;overflow:hidden}.photo:before{content:"";position:absolute;left:-10%;right:-10%;bottom:-32px;height:82px;border-radius:50%;background:#8dac67;transform:rotate(-4deg)}.photo:after{content:"⚑";position:absolute;right:28%;bottom:25px;color:#fff;font-size:28px}.coursebody{padding:12px}.row{display:flex;justify-content:space-between;gap:12px}.course h3{margin:0 0 4px;font-size:15px}.meta{font-size:12px;color:var(--muted)}.price{text-align:right;font-weight:900;color:var(--green);font-size:18px}.price small{display:block;font-size:9px;color:var(--muted);font-weight:600}
 .screen{display:none}.screen.active{display:block}.back{border:0;background:none;color:#fff;font-size:20px;padding:0}
 .detail{background:#fff;border-radius:22px 22px 0 0;margin-top:-20px;position:relative;padding:18px}.coursehero{height:185px;background:linear-gradient(155deg,#92a96e,#3d7049 55%,#173d2e);position:relative}.coursehero:after{content:"⚑";position:absolute;left:58%;top:62px;color:white;font-size:40px}
@@ -138,9 +138,9 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 
   <div class="supporting-title">OTHER STRONG MATCHES</div><div class="rank-note">Scout shows the best available tee time from each course. Open a course to see all of its times.</div>
   <div class="reco-list">
-    <button class="reco-mini"><span class="mini-kicker">💰 BEST VALUE</span><span class="scorebadge">89<small>SCORE</small></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
-    <button class="reco-mini"><span class="mini-kicker">⚡ PLAY SOON</span><span class="scorebadge">86<small>SCORE</small></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
-    <button class="reco-mini"><span class="mini-kicker">☀️ BEST WEATHER</span><span class="scorebadge">84<small>SCORE</small></span><strong>The Legacy · 8:40 AM</strong><small>$48 · 28 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">💰 BEST VALUE</span><span class="reco-score"><span class="scorebadge">89</span><span class="reco-score-label">SCORE</span></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">⚡ PLAY SOON</span><span class="reco-score"><span class="scorebadge">86</span><span class="reco-score-label">SCORE</span></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">☀️ BEST WEATHER</span><span class="reco-score"><span class="scorebadge">84</span><span class="reco-score-label">SCORE</span></span><strong>The Legacy · 8:40 AM</strong><small>$48 · 28 min away</small></button>
   </div>
 </div>
 </section>
@@ -417,7 +417,7 @@ function renderApiRecommendations(items){
 
   document.querySelectorAll(".reco-mini").forEach((el,i)=>{
     const item=items[i+1]; if(!item)return;
-    el.querySelector(".scorebadge").innerHTML=`${item.flyoverScore}<small>SCORE</small>`;
+    el.querySelector(".scorebadge").textContent=item.flyoverScore;
     el.querySelector("strong").textContent=`${item.courseName.replace(" Golf Course","")} · ${item.time}`;
     el.querySelector("small:last-child").textContent=`$${item.price} · ${item.course.driveMinutes} min away · ${item.providerLabel}`;
     el.onclick=()=>openApiCourse(item);
@@ -598,7 +598,7 @@ function renderScout(){
   const hero=$("scoutResult");hero.querySelector(".scorebadge").innerHTML=`${best.score}<small>SCORE</small>`;hero.querySelector("h3").textContent=`${best.course.name.replace(" Golf Course","")} · ${best.slot}`;hero.querySelector(".pick-meta").textContent=`$${best.course.price} · ${best.course.drive} min away · ★ ${best.course.rating.toFixed(1)} · weather ${best.course.weather}/100`;hero.querySelector(".pick-reason").textContent=best.reason;$("openScoutPick").onclick=()=>openCourse(best.course,best.slot);
   document.querySelectorAll(".reco-mini").forEach((el,i)=>{
     const r=ranked[i+1]; if(!r)return;
-    el.querySelector(".scorebadge").innerHTML=`${r.score}<small>SCORE</small>`;
+    el.querySelector(".scorebadge").textContent=r.score;
     el.querySelector("strong").textContent=`${r.course.name.replace(" Golf Course","")} · ${r.slot}`;
     const caveat=r.tradeoffs.length?` · ${r.tradeoffs[0]}`:"";
     el.querySelector("small:last-child").textContent=`$${r.course.price} · ${r.course.drive} min away${caveat}`;
