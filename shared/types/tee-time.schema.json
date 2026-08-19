@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FlyoverNormalizedTeeTime",
+  "type": "object",
+  "required": [
+    "provider",
+    "providerLabel",
+    "courseId",
+    "courseName",
+    "time",
+    "price",
+    "holes",
+    "availablePlayers",
+    "bookingUrl",
+    "isLive"
+  ],
+  "properties": {
+    "provider": {
+      "type": "string"
+    },
+    "providerLabel": {
+      "type": "string"
+    },
+    "courseId": {
+      "type": "string"
+    },
+    "providerCourseId": {
+      "type": "string"
+    },
+    "courseName": {
+      "type": "string"
+    },
+    "time": {
+      "type": "string"
+    },
+    "hour": {
+      "type": "number"
+    },
+    "price": {
+      "type": "number"
+    },
+    "holes": {
+      "type": "integer"
+    },
+    "availablePlayers": {
+      "type": "integer"
+    },
+    "cartIncluded": {
+      "type": "boolean"
+    },
+    "bookingUrl": {
+      "type": "string"
+    },
+    "isLive": {
+      "type": "boolean"
+    }
+  }
+}
