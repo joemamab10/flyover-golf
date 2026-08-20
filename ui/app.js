@@ -246,6 +246,7 @@ async function runScoutFromApi(){
 
 const prefState={holes:"18",ride:"cart",style:"balanced"};
 function $(id){return document.getElementById(id)}
+function scrollBehavior(){return window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}
 function setGreeting(){
   const hour=new Date().getHours();
   const greeting=hour<12?"Good morning":hour<17?"Good afternoon":"Good evening";
@@ -258,23 +259,32 @@ function closeScoutSelects(except){
   document.querySelectorAll(".scout-select.open").forEach(control=>{if(control!==except){control.classList.remove("open");control.querySelector(".scout-select-button").setAttribute("aria-expanded","false")}});
 }
 function initScoutSelects(){
-  document.querySelectorAll(".scout-field select").forEach(select=>{
+  document.querySelectorAll(".scout-field select").forEach((select,index)=>{
     select.classList.add("scout-native-select");select.tabIndex=-1;select.setAttribute("aria-hidden","true");
+    const label=select.previousElementSibling;
+    label.id=`scout-select-label-${index}`;
     const control=document.createElement("div");
     control.className="scout-select";
     const trigger=document.createElement("button");
-    trigger.type="button";trigger.className="scout-select-button";trigger.setAttribute("aria-haspopup","listbox");trigger.setAttribute("aria-expanded","false");
+    trigger.type="button";trigger.id=`scout-select-trigger-${index}`;trigger.className="scout-select-button";trigger.setAttribute("aria-haspopup","listbox");trigger.setAttribute("aria-expanded","false");trigger.setAttribute("aria-labelledby",`${label.id} ${trigger.id}`);
     const menu=document.createElement("div");
-    menu.className="scout-select-menu";menu.setAttribute("role","listbox");
+    menu.id=`scout-select-menu-${index}`;menu.className="scout-select-menu";menu.setAttribute("role","listbox");menu.setAttribute("aria-labelledby",label.id);trigger.setAttribute("aria-controls",menu.id);
     [...select.options].forEach(option=>{
       const item=document.createElement("button");
       item.type="button";item.className="scout-select-option";item.dataset.value=option.value;item.textContent=option.textContent;item.setAttribute("role","option");
       item.onclick=event=>{event.stopPropagation();select.value=option.value;select._scoutSync();control.classList.remove("open");trigger.setAttribute("aria-expanded","false");select.dispatchEvent(new Event("change",{bubbles:true}));trigger.focus()};
+      item.onkeydown=event=>{
+        const items=[...menu.querySelectorAll(".scout-select-option")],current=items.indexOf(item);
+        const nextIndex=event.key==="ArrowDown"?Math.min(current+1,items.length-1):event.key==="ArrowUp"?Math.max(current-1,0):event.key==="Home"?0:event.key==="End"?items.length-1:-1;
+        if(nextIndex>=0){event.preventDefault();items[nextIndex].focus()}
+        if(event.key==="Enter"||event.key===" "){event.preventDefault();item.click()}
+        if(event.key==="Escape"){event.preventDefault();control.classList.remove("open");trigger.setAttribute("aria-expanded","false");trigger.focus()}
+      };
       menu.appendChild(item);
     });
     select._scoutSync=()=>{const selected=select.options[select.selectedIndex];trigger.textContent=selected.textContent;menu.querySelectorAll(".scout-select-option").forEach(item=>{const active=item.dataset.value===select.value;item.classList.toggle("selected",active);item.setAttribute("aria-selected",String(active))})};
     trigger.onclick=event=>{event.stopPropagation();const opening=!control.classList.contains("open");closeScoutSelects(control);control.classList.toggle("open",opening);trigger.setAttribute("aria-expanded",String(opening))};
-    trigger.onkeydown=event=>{if(event.key==="ArrowDown"){event.preventDefault();if(!control.classList.contains("open"))trigger.click();menu.querySelector(".selected")?.focus()}if(event.key==="Escape"){control.classList.remove("open");trigger.setAttribute("aria-expanded","false")}};
+    trigger.onkeydown=event=>{if(event.key==="ArrowDown"||event.key==="ArrowUp"){event.preventDefault();if(!control.classList.contains("open"))trigger.click();const items=menu.querySelectorAll(".scout-select-option");(event.key==="ArrowUp"?items[items.length-1]:menu.querySelector(".selected"))?.focus()}if(event.key==="Escape"){control.classList.remove("open");trigger.setAttribute("aria-expanded","false")}};
     control.append(trigger,menu);select.after(control);select._scoutSync();
   });
   document.addEventListener("click",()=>closeScoutSelects());
@@ -378,6 +388,8 @@ let bookingCourse=null,bookingTime=null,bookingPlayers=4;
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
   $(id).classList.add("active");
+  document.querySelector("nav").classList.toggle("nav-hidden",id==="booking"||id==="confirmed");
+  document.querySelector('[data-nav="home"]').classList.toggle("active",id==="home");
   window.scrollTo(0,0);
 }
 function openBooking(c,t){
@@ -386,7 +398,7 @@ function openBooking(c,t){
   $("bookMeta").textContent=`${c.city} · ${c.dist}`;
   $("bookTime").textContent=`Today · ${t}`;
   bookingPlayers=+($("prefPlayers")?.value || 4);
-  document.querySelectorAll(".player").forEach((b,i)=>b.classList.toggle("active",i+1===bookingPlayers));
+  document.querySelectorAll(".player").forEach((b,i)=>{const active=i+1===bookingPlayers;b.classList.toggle("active",active);b.setAttribute("aria-pressed",String(active))});
   resetBookingAddons();
   updateBookingTotal();
   showScreen("booking");
@@ -430,17 +442,17 @@ function openCourse(c,t){
     : `<strong>No major tradeoffs</strong><span>This round fits your current Scout preferences well.</span>`;
   $("slots").innerHTML=c.times.map(x=>`<div class="slot"><span>${x.t}</span><button class="book-slot" data-time="${x.t}">SELECT · $${c.price}</button></div>`).join(""); document.querySelectorAll(".book-slot").forEach(b=>b.onclick=()=>openBooking(c,b.dataset.time));
 }
-document.querySelectorAll(".scout-toggle").forEach(btn=>btn.onclick=()=>{const g=btn.dataset.prefGroup;prefState[g]=btn.dataset.value;document.querySelectorAll(`.scout-toggle[data-pref-group="${g}"]`).forEach(x=>x.classList.remove("active"));btn.classList.add("active");renderScout()});
+document.querySelectorAll(".scout-toggle").forEach(btn=>btn.onclick=()=>{const g=btn.dataset.prefGroup;prefState[g]=btn.dataset.value;document.querySelectorAll(`.scout-toggle[data-pref-group="${g}"]`).forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});btn.classList.add("active");btn.setAttribute("aria-pressed","true");renderScout()});
 ["prefWhen","prefPlayers","prefDrive","prefPrice"].forEach(id=>$(id).onchange=renderScout);
 $("runScout").onclick=()=>{
   renderScout();
   $("scoutPanel").classList.remove("show");
-  $("scoutResult").scrollIntoView({behavior:"smooth",block:"center"});
+  $("scoutResult").scrollIntoView({behavior:scrollBehavior(),block:"center"});
 };
 document.querySelectorAll(".player").forEach((b,i)=>b.onclick=()=>{
   bookingPlayers=i+1;
-  document.querySelectorAll(".player").forEach(x=>x.classList.remove("active"));
-  b.classList.add("active");
+  document.querySelectorAll(".player").forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});
+  b.classList.add("active");b.setAttribute("aria-pressed","true");
   updateBookingTotal();
 });
 [$("addonCart"),$("addonRange")].forEach(input=>input.onchange=updateBookingTotal);
@@ -460,9 +472,9 @@ $("openRefine").onclick=()=>{$("scoutPanel").classList.toggle("show")};
 $("refineScout").onclick=()=>{
   const panel=$("scoutPanel");
   panel.classList.toggle("show");
-  if(panel.classList.contains("show"))setTimeout(()=>panel.scrollIntoView({behavior:"smooth",block:"nearest"}),180);
+  if(panel.classList.contains("show"))setTimeout(()=>panel.scrollIntoView({behavior:scrollBehavior(),block:"nearest"}),180);
 };
 $("quickMorning").onclick=()=>{$("prefWhen").value="morning";$("prefWhen")._scoutSync();renderScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";$("prefPlayers")._scoutSync();renderScout()};
 $("backHome").onclick=()=>showScreen("home");
-document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:"smooth"})};
+document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:scrollBehavior()})};
 refreshInventory().then(async()=>{renderScout();const online=await checkApiHealth();if(online)await runScoutFromApi();});
