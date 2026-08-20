@@ -80,10 +80,35 @@
 </div>
 </section>
 
+<section id="saved" class="screen">
+<header class="saved-header">
+  <div class="brand"><strong>Saved</strong></div>
+  <h1>Your favorite courses.</h1>
+  <p>Keep the courses you want to check again close at hand.</p>
+</header>
+<div class="content saved-content">
+  <div class="saved-summary" id="savedSummary"></div>
+  <div class="saved-list" id="savedList"></div>
+</div>
+</section>
+
+<section id="rounds" class="screen">
+<header class="rounds-header">
+  <div class="brand"><strong>Rounds</strong></div>
+  <h1>Your booking handoffs.</h1>
+  <p>Return to rounds you started and finish booking with the course.</p>
+</header>
+<div class="content rounds-content">
+  <div class="rounds-notice"><span aria-hidden="true">↗</span><p><strong>Reservations are completed by the course.</strong> Flyover will mark them confirmed once provider updates are connected.</p></div>
+  <div class="rounds-summary" id="roundsSummary"></div>
+  <div class="rounds-list" id="roundsList"></div>
+</div>
+</section>
+
 <section id="course" class="screen">
 <header><div class="brand course-nav"><button class="back" id="backHome" aria-label="Back to Scout">‹</button><strong>Course</strong></div></header>
 <div class="detail">
-  <h1 id="courseName"></h1>
+  <div class="course-title-row"><h1 id="courseName"></h1><button class="save-course" id="saveCourse" type="button" aria-label="Save course" aria-pressed="false">♡</button></div>
   <div class="meta" id="courseCity"></div>
   <a class="course-phone" id="coursePhoneLink" href="#" hidden>
     <span class="course-phone-icon" aria-hidden="true">☎</span>
@@ -162,10 +187,10 @@
 </section>
 
 <nav>
-<button class="nav active" data-nav="home" aria-label="Home"><b>⌂</b>Home</button>
-<button class="nav" data-nav="explore" aria-label="Explore courses"><b>⌕</b>Explore</button>
-<button class="nav" disabled aria-label="Saved, coming soon"><b>♡</b>Saved<small>SOON</small></button>
-<button class="nav" disabled aria-label="Rounds, coming soon"><b>▣</b>Rounds<small>SOON</small></button>
+<button class="nav active" data-nav="home" aria-label="Home"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M9.5 20v-6h5v6"/></svg></b>Home</button>
+<button class="nav" data-nav="explore" aria-label="Explore courses"><b aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg></b>Explore</button>
+<button class="nav" data-nav="saved" aria-label="Saved courses"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.2-8.5 10.2-8.5 10.2S3.5 14 3.5 8.8A4.3 4.3 0 0 1 12 7.7a4.3 4.3 0 0 1 8.5 1.1Z"/></svg></b>Saved</button>
+<button class="nav" data-nav="rounds" aria-label="Rounds"><b aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M7.5 2.5v4M16.5 2.5v4M3 9h18M7 13h3M7 16.5h6"/></svg></b>Rounds</button>
 </nav>
 </div>
 

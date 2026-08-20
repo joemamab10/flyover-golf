@@ -202,7 +202,9 @@ function openApiCourse(item){
   document.getElementById("courseName").textContent=item.courseName;
   document.getElementById("courseCity").innerHTML=`${item.course.city}<div class="provider-pill"><span class="provider-dot ${item.isLive?"live":""}"></span>${item.providerLabel} · ${item.isLive?"LIVE":"POC FEED"}</div>`;
   const fallbackCourse=courses.find(course=>course.providerCourseId===item.courseId);
+  currentCourseDetail=fallbackCourse||{...item.course,name:item.courseName,providerCourseId:item.courseId,price:item.price,bookingUrl:item.bookingUrl,times:[]};
   renderCoursePhone(item.course.phone||fallbackCourse?.phone,item.courseName);
+  updateSaveButton();
   document.getElementById("detailScore").textContent=item.flyoverScore;
   document.getElementById("scoreLabel").textContent=item.flyoverScore>=90?"Flyover Pick":"Great match for you";
   document.getElementById("scoreReason").textContent=buildApiReason(item);
@@ -221,7 +223,7 @@ function openApiCourse(item){
 
 function openApiBooking(item){
   selectedApiRecommendation=item;
-  bookingCourse={name:item.courseName,city:item.course.city,dist:`${item.course.driveMinutes} min`,price:item.price,bookingUrl:item.bookingUrl};
+  bookingCourse={name:item.courseName,city:item.course.city,providerCourseId:item.courseId,dist:`${item.course.driveMinutes} min`,price:item.price,bookingUrl:item.bookingUrl};
   bookingTime=item.time;
   document.getElementById("bookCourse").textContent=item.courseName;
   document.getElementById("bookMeta").textContent=item.course.city;
@@ -403,7 +405,9 @@ function scoreCourse(c,p){
 }
 
 let bookingCourse=null,bookingTime=null,bookingPlayers=4;
-let courseReturnScreen="home",exploreFilter="all";
+let courseReturnScreen="home",exploreFilter="all",currentCourseDetail=null;
+const SAVED_COURSES_KEY="flyover-saved-courses";
+const ROUNDS_KEY="flyover-booking-handoffs";
 
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
@@ -427,6 +431,70 @@ function renderExplore(){
   document.querySelectorAll(".explore-card").forEach(card=>card.onclick=()=>{
     const course=courses.find(item=>item.providerCourseId===card.dataset.courseId);
     if(course)openCourse(course,course.times[0]?.t);
+  });
+}
+function getSavedCourses(){
+  try{return JSON.parse(localStorage.getItem(SAVED_COURSES_KEY)||"[]")}catch{return[]}
+}
+function courseKey(course){return course?.providerCourseId||course?.id||course?.name}
+function isCourseSaved(course){
+  const key=courseKey(course);
+  return getSavedCourses().some(item=>courseKey(item)===key);
+}
+function updateSaveButton(){
+  if(!currentCourseDetail)return;
+  const saved=isCourseSaved(currentCourseDetail),button=$("saveCourse");
+  button.classList.toggle("saved",saved);
+  button.textContent=saved?"♥":"♡";
+  button.setAttribute("aria-pressed",String(saved));
+  button.setAttribute("aria-label",`${saved?"Remove":"Save"} ${currentCourseDetail.name} ${saved?"from":"to"} saved courses`);
+}
+function toggleSavedCourse(course){
+  const key=courseKey(course),saved=getSavedCourses(),index=saved.findIndex(item=>courseKey(item)===key);
+  if(index>=0)saved.splice(index,1);else saved.push(course);
+  localStorage.setItem(SAVED_COURSES_KEY,JSON.stringify(saved));
+  updateSaveButton();
+  renderSaved();
+}
+function renderSaved(){
+  const saved=getSavedCourses();
+  $("savedSummary").textContent=saved.length?`${saved.length} SAVED COURSE${saved.length===1?"":"S"}`:"";
+  $("savedList").innerHTML=saved.length?saved.map(course=>`<div class="saved-card"><button class="saved-course-main" type="button" data-saved-open="${courseKey(course)}"><span><h2>${course.name}</h2><span>${course.city}${course.dist?` · ${course.dist}`:""}</span></span><strong>$${course.price}<small>FROM</small></strong></button><button class="saved-remove" type="button" data-saved-remove="${courseKey(course)}" aria-label="Remove ${course.name} from saved courses">♥</button></div>`).join(""):`<div class="saved-empty"><b>♡</b><strong>No saved courses yet</strong><span>Open any course and tap the heart to keep it here.</span></div>`;
+  document.querySelectorAll("[data-saved-open]").forEach(button=>button.onclick=()=>{
+    const savedCourse=saved.find(item=>courseKey(item)===button.dataset.savedOpen);
+    const freshCourse=courses.find(item=>courseKey(item)===button.dataset.savedOpen);
+    if(savedCourse)openCourse(freshCourse||savedCourse,(freshCourse||savedCourse).times?.[0]?.t);
+  });
+  document.querySelectorAll("[data-saved-remove]").forEach(button=>button.onclick=()=>{
+    const savedCourse=saved.find(item=>courseKey(item)===button.dataset.savedRemove);
+    if(savedCourse)toggleSavedCourse(savedCourse);
+  });
+}
+function getRounds(){
+  try{return JSON.parse(localStorage.getItem(ROUNDS_KEY)||"[]")}catch{return[]}
+}
+function recordBookingHandoff(){
+  const rounds=getRounds(),now=new Date(),localDate=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`,key=`${courseKey(bookingCourse)}-${localDate}-${bookingTime}`;
+  const round={id:key,courseName:bookingCourse.name,city:bookingCourse.city,date:localDate,time:bookingTime,players:bookingPlayers,total:getBookingTotal(),addons:getBookingAddons().map(item=>item.label),bookingUrl:bookingCourse.bookingUrl,createdAt:now.toISOString(),status:"handoff"};
+  const existing=rounds.findIndex(item=>item.id===key);
+  if(existing>=0)rounds.splice(existing,1);
+  rounds.unshift(round);
+  localStorage.setItem(ROUNDS_KEY,JSON.stringify(rounds));
+  renderRounds();
+}
+function roundDateLabel(date){
+  if(!date)return"Today";
+  const now=new Date(),today=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  return date===today?"Today":new Date(`${date}T12:00:00`).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+function renderRounds(){
+  const rounds=getRounds();
+  $("roundsSummary").textContent=rounds.length?`${rounds.length} BOOKING HANDOFF${rounds.length===1?"":"S"}`:"";
+  $("roundsList").innerHTML=rounds.length?rounds.map(round=>`<article class="round-card"><div class="round-card-top"><div><span class="round-status">NOT YET CONFIRMED</span><h2>${round.courseName}</h2></div><strong class="round-card-price">$${round.total}</strong></div><div class="round-details"><span>${roundDateLabel(round.date)} · ${round.time}</span><span>·</span><span>${round.players} player${round.players===1?"":"s"}</span>${round.addons?.length?`<span>·</span><span>${round.addons.join(" + ")}</span>`:""}</div><div class="round-actions"><a class="round-resume" href="${round.bookingUrl}" target="_blank" rel="noopener">FINISH ON COURSE WEBSITE</a><button class="round-remove" type="button" data-round-remove="${round.id}" aria-label="Remove ${round.courseName} booking handoff">×</button></div></article>`).join(""):`<div class="rounds-empty"><b>▣</b><strong>No rounds started yet</strong><span>Choose a tee time and review the booking handoff to keep it here.</span></div>`;
+  document.querySelectorAll("[data-round-remove]").forEach(button=>button.onclick=()=>{
+    const remaining=getRounds().filter(round=>round.id!==button.dataset.roundRemove);
+    localStorage.setItem(ROUNDS_KEY,JSON.stringify(remaining));
+    renderRounds();
   });
 }
 function openBooking(c,t){
@@ -472,11 +540,14 @@ function renderScout(){
 }
 function openCourse(c,t){
   const activeScreen=document.querySelector(".screen.active")?.id;
-  courseReturnScreen=activeScreen==="explore"?"explore":"home";
+  courseReturnScreen=["explore","saved"].includes(activeScreen)?activeScreen:"home";
   $("backHome").setAttribute("aria-label",courseReturnScreen==="explore"?"Back to Explore":"Back to Scout");
+  if(courseReturnScreen==="saved")$("backHome").setAttribute("aria-label","Back to Saved");
+  currentCourseDetail=c;
   const s=scoreCourse(c,getPrefs());showScreen("course");
   $("courseName").textContent=c.name;$("courseCity").innerHTML=`${c.city} · ${c.dist}<div class="provider-pill"><span class="provider-dot ${c.inventoryLive?"live":""}"></span>${c.inventorySource||providers[c.provider]?.label||"Course Direct"} · ${c.inventoryLive?"LIVE":"POC FEED"}</div>`;$("detailScore").textContent=s.score;$("scoreLabel").textContent=s.score>=90?"Flyover Pick":"Great match for you";$("scoreReason").textContent=s.reason;
   renderCoursePhone(c.phone,c.name);
+  updateSaveButton();
   [["Price","price"],["Drive","drive"],["Course","course"],["Weather","weather"]].forEach(([id,key])=>{$("bar"+id).style.width=s.factors[key]+"%";$("factor"+id).textContent=s.factors[key]});
   $("tradeoffs").innerHTML=s.tradeoffs.length
     ? `<strong>Tradeoffs</strong><ul>${s.tradeoffs.map(x=>`<li>${x}</li>`).join("")}</ul>`
@@ -505,6 +576,7 @@ $("confirmBtn").onclick=()=>{
   $("confirmPlayers").textContent=`${bookingPlayers} player${bookingPlayers===1?"":"s"} · ${addons.length?addons.map(x=>x.label).join(" + "):"No add-ons"}`;
   $("confirmTotal").textContent=`$${getBookingTotal()}`;
   $("providerBookingLink").href=bookingCourse.bookingUrl;
+  recordBookingHandoff();
   showScreen("confirmed");
 };
 $("doneBtn").onclick=()=>showScreen("home");
@@ -519,10 +591,13 @@ $("quickMorning").onclick=()=>{$("prefWhen").value="morning";$("prefWhen")._scou
 $("backHome").onclick=()=>showScreen(courseReturnScreen);
 document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:scrollBehavior()})};
 document.querySelector('[data-nav="explore"]').onclick=()=>{renderExplore();showScreen("explore")};
+document.querySelector('[data-nav="saved"]').onclick=()=>{renderSaved();showScreen("saved")};
+document.querySelector('[data-nav="rounds"]').onclick=()=>{renderRounds();showScreen("rounds")};
+$("saveCourse").onclick=()=>{if(currentCourseDetail)toggleSavedCourse(currentCourseDetail)};
 $("exploreSearch").oninput=renderExplore;
 document.querySelectorAll(".explore-filter").forEach(button=>button.onclick=()=>{
   exploreFilter=button.dataset.exploreFilter;
   document.querySelectorAll(".explore-filter").forEach(item=>{const active=item===button;item.classList.toggle("active",active);item.setAttribute("aria-pressed",String(active))});
   renderExplore();
 });
-refreshInventory().then(async()=>{renderScout();renderExplore();const online=await checkApiHealth();if(online)await runScoutFromApi();});
+refreshInventory().then(async()=>{renderScout();renderExplore();renderSaved();renderRounds();const online=await checkApiHealth();if(online)await runScoutFromApi();});
