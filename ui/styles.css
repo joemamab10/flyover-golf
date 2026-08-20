@@ -79,3 +79,4 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
 .rank-note{font-size:10px;color:var(--muted);margin:-4px 2px 9px;line-height:1.4}
 .detail>h1,.course-title-row h1{margin:0 0 4px;font-size:21px}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.explore-filter{min-height:44px}.save-course{width:44px;height:44px}

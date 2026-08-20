@@ -283,7 +283,7 @@ function initScoutSelects(){
   document.querySelectorAll(".scout-field select").forEach((select,index)=>{
     select.classList.add("scout-native-select");select.tabIndex=-1;select.setAttribute("aria-hidden","true");
     const label=select.previousElementSibling;
-    label.id=`scout-select-label-${index}`;
+    label.id=`scout-select-label-${index}`;label.htmlFor=select.id;
     const control=document.createElement("div");
     control.className="scout-select";
     const trigger=document.createElement("button");
@@ -413,7 +413,8 @@ function showScreen(id){
   document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
   $(id).classList.add("active");
   document.querySelector("nav").classList.toggle("nav-hidden",id==="booking"||id==="confirmed");
-  document.querySelectorAll("[data-nav]").forEach(button=>button.classList.toggle("active",button.dataset.nav===id));
+  const activeNav=id==="course"?courseReturnScreen:id;
+  document.querySelectorAll("[data-nav]").forEach(button=>button.classList.toggle("active",button.dataset.nav===activeNav));
   window.scrollTo(0,0);
 }
 function renderExplore(){
