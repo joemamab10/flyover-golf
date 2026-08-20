@@ -1,13 +1,13 @@
 const courses=[
-{name:"Waveland Golf Course",city:"Des Moines, IA",dist:"4.8 mi",drive:12,price:42,rating:4.6,weather:93,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"waveland",bookingUrl:"https://golfwaveland.com/",times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]},
-{name:"A.H. Blank Golf Course",city:"Des Moines, IA",dist:"7.2 mi",drive:16,price:39,rating:4.4,weather:93,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"ah-blank",bookingUrl:"https://golfblank.com/",times:[{t:"7:48 AM",h:7},{t:"8:12 AM",h:8},{t:"8:36 AM",h:8}]},
-{name:"Bright Grandview Golf Course",city:"Des Moines, IA",dist:"6.6 mi",drive:15,price:38,rating:4.3,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"bright-grandview",bookingUrl:"https://golfbrightgrandview.com/",times:[{t:"7:56 AM",h:7},{t:"8:20 AM",h:8},{t:"8:44 AM",h:8}]},
-{name:"Jester Park Golf Course",city:"Granger, IA",dist:"18.5 mi",drive:27,price:44,rating:4.6,weather:91,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"jester-park",bookingUrl:"https://jesterparkgolf.com/",times:[{t:"8:08 AM",h:8},{t:"8:32 AM",h:8},{t:"9:04 AM",h:9}]},
-{name:"Otter Creek Golf Course",city:"Ankeny, IA",dist:"14.8 mi",drive:23,price:46,rating:4.6,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"otter-creek",bookingUrl:"https://www.ottercreekankeny.com/",times:[{t:"7:50 AM",h:7},{t:"8:20 AM",h:8},{t:"8:50 AM",h:8}]},
-{name:"The Legacy Golf Club",city:"Norwalk, IA",dist:"12.9 mi",drive:22,price:49,rating:4.7,weather:95,holes:18,walk:true,cart:true,provider:"clubcaddie",providerCourseId:"legacy-norwalk",bookingUrl:"https://thelegacygolfclub.com/",times:[{t:"8:10 AM",h:8},{t:"8:40 AM",h:8},{t:"9:10 AM",h:9}]},
-{name:"Tournament Club of Iowa",city:"Polk City, IA",dist:"19.4 mi",drive:29,price:55,rating:4.8,weather:94,holes:18,walk:true,cart:true,provider:"foreup",providerCourseId:"tci-polk-city",bookingUrl:"https://tcofiowa.com/",times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]},
-{name:"Copper Creek Golf Club",city:"Pleasant Hill, IA",dist:"9.7 mi",drive:18,price:43,rating:4.5,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"copper-creek",bookingUrl:"https://coppercreekgolfclub.com/",times:[{t:"7:52 AM",h:7},{t:"8:24 AM",h:8},{t:"8:56 AM",h:8}]},
-{name:"Beaver Creek Golf Club",city:"Grimes, IA",dist:"13.6 mi",drive:21,price:41,rating:4.4,weather:91,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"beaver-creek",bookingUrl:"https://beavercreek-golf.com/",times:[{t:"8:04 AM",h:8},{t:"8:36 AM",h:8},{t:"9:08 AM",h:9}]}
+{name:"Waveland Golf Course",city:"Des Moines, IA",phone:"515-248-6302",dist:"4.8 mi",drive:12,price:42,rating:4.6,weather:93,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"waveland",bookingUrl:"https://golfwaveland.com/",times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]},
+{name:"A.H. Blank Golf Course",city:"Des Moines, IA",phone:"515-248-6300",dist:"7.2 mi",drive:16,price:39,rating:4.4,weather:93,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"ah-blank",bookingUrl:"https://golfblank.com/",times:[{t:"7:48 AM",h:7},{t:"8:12 AM",h:8},{t:"8:36 AM",h:8}]},
+{name:"Bright Grandview Golf Course",city:"Des Moines, IA",phone:"515-248-6301",dist:"6.6 mi",drive:15,price:38,rating:4.3,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"bright-grandview",bookingUrl:"https://golfbrightgrandview.com/",times:[{t:"7:56 AM",h:7},{t:"8:20 AM",h:8},{t:"8:44 AM",h:8}]},
+{name:"Jester Park Golf Course",city:"Granger, IA",phone:"515-999-2903",dist:"18.5 mi",drive:27,price:44,rating:4.6,weather:91,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"jester-park",bookingUrl:"https://jesterparkgolf.com/",times:[{t:"8:08 AM",h:8},{t:"8:32 AM",h:8},{t:"9:04 AM",h:9}]},
+{name:"Otter Creek Golf Course",city:"Ankeny, IA",phone:"515-965-6464",dist:"14.8 mi",drive:23,price:46,rating:4.6,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"otter-creek",bookingUrl:"https://www.ottercreekankeny.com/",times:[{t:"7:50 AM",h:7},{t:"8:20 AM",h:8},{t:"8:50 AM",h:8}]},
+{name:"The Legacy Golf Club",city:"Norwalk, IA",phone:"515-287-7885",dist:"12.9 mi",drive:22,price:49,rating:4.7,weather:95,holes:18,walk:true,cart:true,provider:"clubcaddie",providerCourseId:"legacy-norwalk",bookingUrl:"https://thelegacygolfclub.com/",times:[{t:"8:10 AM",h:8},{t:"8:40 AM",h:8},{t:"9:10 AM",h:9}]},
+{name:"Tournament Club of Iowa",city:"Polk City, IA",phone:"515-984-9440",dist:"19.4 mi",drive:29,price:55,rating:4.8,weather:94,holes:18,walk:true,cart:true,provider:"foreup",providerCourseId:"tci-polk-city",bookingUrl:"https://tcofiowa.com/",times:[{t:"8:00 AM",h:8},{t:"8:30 AM",h:8},{t:"9:00 AM",h:9}]},
+{name:"Copper Creek Golf Club",city:"Pleasant Hill, IA",phone:"515-263-1600",dist:"9.7 mi",drive:18,price:43,rating:4.5,weather:92,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"copper-creek",bookingUrl:"https://coppercreekgolfclub.com/",times:[{t:"7:52 AM",h:7},{t:"8:24 AM",h:8},{t:"8:56 AM",h:8}]},
+{name:"Beaver Creek Golf Club",city:"Grimes, IA",phone:"515-986-3221",dist:"13.6 mi",drive:21,price:41,rating:4.4,weather:91,holes:18,walk:true,cart:true,provider:"direct",providerCourseId:"beaver-creek",bookingUrl:"https://beavercreek-golf.com/",times:[{t:"8:04 AM",h:8},{t:"8:36 AM",h:8},{t:"9:08 AM",h:9}]}
 ];
 
 /* ============================
@@ -199,6 +199,8 @@ function openApiCourse(item){
   showScreen("course");
   document.getElementById("courseName").textContent=item.courseName;
   document.getElementById("courseCity").innerHTML=`${item.course.city}<div class="provider-pill"><span class="provider-dot ${item.isLive?"live":""}"></span>${item.providerLabel} · ${item.isLive?"LIVE":"POC FEED"}</div>`;
+  const fallbackCourse=courses.find(course=>course.providerCourseId===item.courseId);
+  renderCoursePhone(item.course.phone||fallbackCourse?.phone,item.courseName);
   document.getElementById("detailScore").textContent=item.flyoverScore;
   document.getElementById("scoreLabel").textContent=item.flyoverScore>=90?"Flyover Pick":"Great match for you";
   document.getElementById("scoreReason").textContent=buildApiReason(item);
@@ -246,6 +248,21 @@ async function runScoutFromApi(){
 
 const prefState={holes:"18",ride:"cart",style:"balanced"};
 function $(id){return document.getElementById(id)}
+function renderCoursePhone(phone,courseName){
+  const link=$("coursePhoneLink");
+  const digits=String(phone||"").replace(/\D/g,"");
+  if(digits.length!==10){
+    link.hidden=true;
+    link.removeAttribute("href");
+    link.removeAttribute("aria-label");
+    return;
+  }
+  const formatted=`(${digits.slice(0,3)}) ${digits.slice(3,6)}-${digits.slice(6)}`;
+  $("coursePhone").textContent=formatted;
+  link.href=`tel:+1${digits}`;
+  link.setAttribute("aria-label",`Call ${courseName} clubhouse at ${formatted}`);
+  link.hidden=false;
+}
 function scrollBehavior(){return window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"}
 function setGreeting(){
   const hour=new Date().getHours();
@@ -436,6 +453,7 @@ function renderScout(){
 function openCourse(c,t){
   const s=scoreCourse(c,getPrefs());showScreen("course");
   $("courseName").textContent=c.name;$("courseCity").innerHTML=`${c.city} · ${c.dist}<div class="provider-pill"><span class="provider-dot ${c.inventoryLive?"live":""}"></span>${c.inventorySource||providers[c.provider]?.label||"Course Direct"} · ${c.inventoryLive?"LIVE":"POC FEED"}</div>`;$("detailScore").textContent=s.score;$("scoreLabel").textContent=s.score>=90?"Flyover Pick":"Great match for you";$("scoreReason").textContent=s.reason;
+  renderCoursePhone(c.phone,c.name);
   [["Price","price"],["Drive","drive"],["Course","course"],["Weather","weather"]].forEach(([id,key])=>{$("bar"+id).style.width=s.factors[key]+"%";$("factor"+id).textContent=s.factors[key]});
   $("tradeoffs").innerHTML=s.tradeoffs.length
     ? `<strong>Tradeoffs</strong><ul>${s.tradeoffs.map(x=>`<li>${x}</li>`).join("")}</ul>`

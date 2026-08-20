@@ -64,6 +64,7 @@ nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:430px;
   color:var(--muted);font-size:10px;font-weight:900;
 }
 #courseCity{display:flex;align-items:center;column-gap:9px;row-gap:6px;flex-wrap:wrap}#courseCity .provider-pill{margin-top:0}
+.course-phone{display:flex;align-items:center;gap:10px;margin-top:13px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--soft);color:var(--green);text-decoration:none}.course-phone[hidden]{display:none}.course-phone-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:50%;background:var(--green);color:#fff;font-size:15px}.course-phone span:nth-child(2){display:flex;flex:1;flex-direction:column;gap:2px}.course-phone small{font-size:8px;font-weight:900;letter-spacing:.08em;color:var(--muted)}.course-phone strong{font-size:13px}.course-phone b{font-size:10px;letter-spacing:.08em;color:var(--green2)}
 .provider-dot{width:6px;height:6px;border-radius:50%;background:var(--gold)}
 .provider-dot.live{background:#4f8b5f}
 

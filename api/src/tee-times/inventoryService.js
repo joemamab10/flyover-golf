@@ -15,6 +15,7 @@ export async function loadInventory({ date = "today", players = 4 } = {}) {
           id: course.id,
           name: course.name,
           city: course.city,
+          phone: course.phone,
           driveMinutes: course.driveMinutes,
           rating: course.rating,
           weatherScore: course.weatherScore,
