@@ -61,6 +61,25 @@
 </div>
 </section>
 
+<section id="explore" class="screen">
+<header class="explore-header">
+  <div class="brand"><strong>Explore</strong></div>
+  <h1>Find your next course.</h1>
+  <p>Browse every available course without Scout ranking the decision for you.</p>
+</header>
+<div class="content explore-content">
+  <label class="explore-search"><span aria-hidden="true">⌕</span><input id="exploreSearch" type="search" placeholder="Search courses or cities" aria-label="Search courses or cities"></label>
+  <div class="explore-filters" aria-label="Explore filters">
+    <button class="explore-filter active" type="button" data-explore-filter="all" aria-pressed="true">All courses</button>
+    <button class="explore-filter" type="button" data-explore-filter="nearby" aria-pressed="false">Nearby</button>
+    <button class="explore-filter" type="button" data-explore-filter="value" aria-pressed="false">Under $50</button>
+    <button class="explore-filter" type="button" data-explore-filter="rated" aria-pressed="false">Top rated</button>
+  </div>
+  <div class="explore-summary"><strong id="exploreCount"></strong><span>Tap a course to see every available time.</span></div>
+  <div class="explore-list" id="exploreList"></div>
+</div>
+</section>
+
 <section id="course" class="screen">
 <header><div class="brand course-nav"><button class="back" id="backHome" aria-label="Back to Scout">‹</button><strong>Course</strong></div></header>
 <div class="detail">
@@ -144,7 +163,7 @@
 
 <nav>
 <button class="nav active" data-nav="home" aria-label="Home"><b>⌂</b>Home</button>
-<button class="nav" disabled aria-label="Explore, coming soon"><b>⌕</b>Explore<small>SOON</small></button>
+<button class="nav" data-nav="explore" aria-label="Explore courses"><b>⌕</b>Explore</button>
 <button class="nav" disabled aria-label="Saved, coming soon"><b>♡</b>Saved<small>SOON</small></button>
 <button class="nav" disabled aria-label="Rounds, coming soon"><b>▣</b>Rounds<small>SOON</small></button>
 </nav>

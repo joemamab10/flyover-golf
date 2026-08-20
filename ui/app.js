@@ -196,6 +196,8 @@ function renderApiRecommendations(items){
 
 function openApiCourse(item){
   selectedApiRecommendation=item;
+  courseReturnScreen="home";
+  $("backHome").setAttribute("aria-label","Back to Scout");
   showScreen("course");
   document.getElementById("courseName").textContent=item.courseName;
   document.getElementById("courseCity").innerHTML=`${item.course.city}<div class="provider-pill"><span class="provider-dot ${item.isLive?"live":""}"></span>${item.providerLabel} · ${item.isLive?"LIVE":"POC FEED"}</div>`;
@@ -401,13 +403,31 @@ function scoreCourse(c,p){
 }
 
 let bookingCourse=null,bookingTime=null,bookingPlayers=4;
+let courseReturnScreen="home",exploreFilter="all";
 
 function showScreen(id){
   document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));
   $(id).classList.add("active");
   document.querySelector("nav").classList.toggle("nav-hidden",id==="booking"||id==="confirmed");
-  document.querySelector('[data-nav="home"]').classList.toggle("active",id==="home");
+  document.querySelectorAll("[data-nav]").forEach(button=>button.classList.toggle("active",button.dataset.nav===id));
   window.scrollTo(0,0);
+}
+function renderExplore(){
+  const query=$("exploreSearch").value.trim().toLowerCase();
+  const filtered=courses.filter(course=>{
+    const matchesSearch=!query||`${course.name} ${course.city}`.toLowerCase().includes(query);
+    const matchesFilter=exploreFilter==="all"||(exploreFilter==="nearby"&&course.drive<=20)||(exploreFilter==="value"&&course.price<50)||(exploreFilter==="rated"&&course.rating>=4.6);
+    return matchesSearch&&matchesFilter;
+  });
+  $("exploreCount").textContent=`${filtered.length} COURSE${filtered.length===1?"":"S"}`;
+  $("exploreList").innerHTML=filtered.length?filtered.map(course=>{
+    const next=course.times[0];
+    return `<button class="explore-card" type="button" data-course-id="${course.providerCourseId}"><span><h2>${course.name}</h2><span class="explore-card-meta"><span>${course.city}</span><span>·</span><span>${course.dist}</span><span>·</span><span>★ ${course.rating.toFixed(1)}</span></span><span class="explore-next">Next available <strong>${next?.t||"Check course"}</strong></span></span><span class="explore-card-price">$${course.price}<small>FROM</small></span></button>`;
+  }).join(""):`<div class="explore-empty"><strong>No courses found</strong><span>Try another search or filter.</span></div>`;
+  document.querySelectorAll(".explore-card").forEach(card=>card.onclick=()=>{
+    const course=courses.find(item=>item.providerCourseId===card.dataset.courseId);
+    if(course)openCourse(course,course.times[0]?.t);
+  });
 }
 function openBooking(c,t){
   bookingCourse=c; bookingTime=t;
@@ -451,6 +471,9 @@ function renderScout(){
   });
 }
 function openCourse(c,t){
+  const activeScreen=document.querySelector(".screen.active")?.id;
+  courseReturnScreen=activeScreen==="explore"?"explore":"home";
+  $("backHome").setAttribute("aria-label",courseReturnScreen==="explore"?"Back to Explore":"Back to Scout");
   const s=scoreCourse(c,getPrefs());showScreen("course");
   $("courseName").textContent=c.name;$("courseCity").innerHTML=`${c.city} · ${c.dist}<div class="provider-pill"><span class="provider-dot ${c.inventoryLive?"live":""}"></span>${c.inventorySource||providers[c.provider]?.label||"Course Direct"} · ${c.inventoryLive?"LIVE":"POC FEED"}</div>`;$("detailScore").textContent=s.score;$("scoreLabel").textContent=s.score>=90?"Flyover Pick":"Great match for you";$("scoreReason").textContent=s.reason;
   renderCoursePhone(c.phone,c.name);
@@ -493,6 +516,13 @@ $("refineScout").onclick=()=>{
   if(panel.classList.contains("show"))setTimeout(()=>panel.scrollIntoView({behavior:scrollBehavior(),block:"nearest"}),180);
 };
 $("quickMorning").onclick=()=>{$("prefWhen").value="morning";$("prefWhen")._scoutSync();renderScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";$("prefPlayers")._scoutSync();renderScout()};
-$("backHome").onclick=()=>showScreen("home");
+$("backHome").onclick=()=>showScreen(courseReturnScreen);
 document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:scrollBehavior()})};
-refreshInventory().then(async()=>{renderScout();const online=await checkApiHealth();if(online)await runScoutFromApi();});
+document.querySelector('[data-nav="explore"]').onclick=()=>{renderExplore();showScreen("explore")};
+$("exploreSearch").oninput=renderExplore;
+document.querySelectorAll(".explore-filter").forEach(button=>button.onclick=()=>{
+  exploreFilter=button.dataset.exploreFilter;
+  document.querySelectorAll(".explore-filter").forEach(item=>{const active=item===button;item.classList.toggle("active",active);item.setAttribute("aria-pressed",String(active))});
+  renderExplore();
+});
+refreshInventory().then(async()=>{renderScout();renderExplore();const online=await checkApiHealth();if(online)await runScoutFromApi();});
