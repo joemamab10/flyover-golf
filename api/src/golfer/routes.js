@@ -1,3 +1,4 @@
+import { validateFeedback } from "./feedback.js";
 import { Router } from "express";
 import { InputError, validateProfile, validateRound, validateScore, getStats } from "./service.js";
 
@@ -16,6 +17,7 @@ export function golferRoutes(store) {
       round.score = validateScore(req.body.score, round);
       round.status = "completed";
     }
+    if(req.body.feedback!=null)round.feedback=validateFeedback(req.body.feedback,round);
     const requestId = req.body.requestId;
     if (requestId != null && (typeof requestId !== "string" || !/^[0-9a-f-]{36}$/i.test(requestId))) throw new InputError("Invalid requestId.");
     const saved = await store.update(state => {
@@ -37,6 +39,13 @@ export function golferRoutes(store) {
       return round;
     });
     res.json({ round });
+  });
+  router.put("/rounds/:roundId/feedback", async(req,res)=>{
+    const round=await store.update(state=>{
+      const round=state.rounds.find(row=>row.id===req.params.roundId);
+      if(!round)throw new InputError("Round not found.",404);
+      round.feedback=validateFeedback(req.body,round);round.updatedAt=new Date().toISOString();return round;
+    });res.json({round});
   });
   router.get("/stats", async (_req, res) => res.json({ stats: getStats((await store.read()).rounds) }));
   return router;

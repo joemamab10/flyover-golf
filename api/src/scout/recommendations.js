@@ -1,3 +1,4 @@
+import { fitsConstraints } from "./constraints.js";
 import { loadInventory } from "../tee-times/inventoryService.js";
 import { personalize } from "./personalize.js";
 import { scoreTeeTime } from "./score.js";
@@ -48,7 +49,7 @@ export async function getScoutResults(preferences = {}, golfer = { profile: {}, 
     players: preferences.players ?? 4
   });
 
-  const rankedInventory = rankInventory(inventory, preferences, golfer);
+  const rankedInventory = rankInventory(inventory.filter(item=>fitsConstraints(item,preferences)), preferences, golfer);
   const recommendations = selectBestRoundPerCourse(rankedInventory);
 
   return {

@@ -1,3 +1,4 @@
+import { validateFeedback } from "../api/src/golfer/feedback.js";
 import { InputError, validateRound, validateScore, validateProfile, getStats } from "../api/src/golfer/service.js";
 import { getScoutResults } from "../api/src/scout/recommendations.js";
 import { courses } from "../api/src/courses/courses.js";
@@ -19,6 +20,7 @@ async function readProfile(db,userId){const row=await db.prepare("SELECT data FR
 function checkedRound(input){
   const round=validateRound(input);
   if(input.score!=null){round.score=validateScore(input.score,round);round.status="completed";}
+  if(input.feedback!=null)round.feedback=validateFeedback(input.feedback,round);
   round.version=1;return round;
 }
 export default {
@@ -72,15 +74,18 @@ export default {
         await env.DB.batch(imports.map(round=>env.DB.prepare("INSERT INTO golfer_rounds(user_id,id,data) VALUES (?,?,?) ON CONFLICT(user_id,id) DO NOTHING").bind(userId,round.id,JSON.stringify(round))));
         return json({ok:true,rounds:await readRounds(env.DB,userId)});
       }
-      const match=path.match(/^\/api\/rounds\/([^/]+)\/score$/);
+      const match=path.match(/^\/api\/rounds\/([^/]+)\/(score|feedback)$/);
       if(match&&request.method==="PUT"){
         const data=await body(request),id=decodeURIComponent(match[1]);
         const existing=await env.DB.prepare("SELECT data FROM golfer_rounds WHERE user_id = ? AND id = ?").bind(userId,id).first();
         if(!existing)throw new InputError("Round not found.",404);
-        const round=JSON.parse(existing.data),score=validateScore(data,round);
+        const round=JSON.parse(existing.data);
+        const score=match[2]==="score"?validateScore(data,round):null;
+        const feedback=match[2]==="feedback"?validateFeedback(data,round):null;
         if(data.version!==round.version)throw new InputError("This score changed on another device. Close this form, refresh Rounds and reopen the score before editing.",409);
         round.version+=1;
-        round.score=score;round.status="completed";round.updatedAt=new Date().toISOString();
+        if(feedback)round.feedback=feedback;
+        if(score){round.score=score;round.status="completed";}round.updatedAt=new Date().toISOString();
         const result=await env.DB.prepare("UPDATE golfer_rounds SET data = ? WHERE user_id = ? AND id = ? AND data = ?").bind(JSON.stringify(round),userId,id,existing.data).run();
         if(result.meta.changes!==1)throw new InputError("This score changed on another device. Refresh Rounds and try again.",409);
         return json({round});

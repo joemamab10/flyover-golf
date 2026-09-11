@@ -62,3 +62,20 @@ test("imports validate before writing and preserve existing corrections",async()
   const rounds=(await alice("/api/rounds")).data.rounds;assert.equal(rounds.length,1);assert.equal(rounds[0].score.strokes,82);
  }finally{sql.close();}
 });
+
+test("feedback is private, versioned and survives score corrections and imports",async()=>{
+ const {db,sql}=database();const alice=client(db),bob=client(db,"bob");
+ try{
+  const {data}=await alice("/api/rounds","POST",newRound),id=data.round.id;
+  assert.equal((await bob(`/api/rounds/${id}/feedback`,"PUT",{playAgain:"no",version:1})).status,404);
+  assert.equal((await alice(`/api/rounds/${id}/feedback`,"PUT",{playAgain:"no",pace:1,version:1})).status,200);
+  assert.equal((await alice(`/api/rounds/${id}/feedback`,"PUT",{playAgain:"yes",version:1})).status,409);
+  await alice(`/api/rounds/${id}/score`,"PUT",{strokes:83,par:72,version:2});
+  assert.equal((await alice("/api/rounds")).data.rounds[0].feedback.playAgain,"no");
+  const scout=await alice("/api/scout/recommendations","POST",{});
+  assert.ok(scout.data.inventory.find(row=>row.courseId==="waveland").golferFit.adjustment<0);
+  const payload={...newRound,id:"dddddddd-dddd-dddd-dddd-dddddddddddd",feedback:{playAgain:"yes",value:5}};
+  assert.equal((await alice("/api/rounds/import","POST",{rounds:[payload]})).status,200);
+  assert.ok((await alice("/api/rounds")).data.rounds.some(row=>row.feedback?.value===5));
+ }finally{sql.close();}
+});

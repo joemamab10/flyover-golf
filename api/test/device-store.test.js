@@ -32,3 +32,12 @@ test("device storage failures and invalid scores do not claim a successful save"
   await assert.rejects(store.request("/rounds","POST",payload),/could not save/);
   assert.equal((await store.request("/rounds","GET")).rounds.length,0);
 });
+
+test("device feedback changes course fit and leaves the score intact",async()=>{
+ const {store}=setup();const {round}=await store.request("/rounds","POST",payload);
+ await store.request(`/rounds/${round.id}/feedback`,"PUT",{playAgain:"no",pace:1});
+ assert.equal(store.experience("waveland").adjustment,-14);
+ assert.equal((await store.request("/rounds","GET")).rounds[0].score.strokes,84);
+ await assert.rejects(store.request(`/rounds/${round.id}/feedback`,"PUT",{playAgain:"yes",pace:9}));
+ assert.equal(store.experience("waveland").adjustment,-14);
+});

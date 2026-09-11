@@ -111,6 +111,7 @@ async function refreshInventory(){
 const API_BASE_URL=window.FLYOVER_API_BASE_URL ?? (["localhost","127.0.0.1"].includes(location.hostname) && location.port!=="3000" ? "http://localhost:3000" : "");
 let currentApiRecommendations=[];
 let selectedApiRecommendation=null;
+let scoutRequestVersion=0;
 
 function setApiStatus(isOnline){
   const dot=document.getElementById("apiStatusDot");
@@ -121,7 +122,7 @@ function setApiStatus(isOnline){
   if(isOnline){
     dot.classList.add("live");
     title.textContent="Prototype mode · API connected";
-    text.textContent="Real courses with demo tee times, prices and Flyover Scores.";
+    text.textContent="Demo tee times, prices, travel estimates and conditions. Confirm details with the course.";
   }else{
     dot.classList.add("offline");
     title.textContent=window.FLYOVER_STORAGE_MODE==="device"?"Prototype mode · Demo tee times":"Prototype mode · Local fallback";
@@ -177,19 +178,23 @@ function buildApiReason(item){
 }
 
 function renderApiRecommendations(items){
-  if(!items.length)return false;
+  renderShortlist(items);
+  if(!items.length)return true;
   const best=items[0],hero=document.getElementById("scoutResult");
   hero.querySelector(".scorebadge").innerHTML=`${best.flyoverScore}<small>SCORE</small>`;
   hero.querySelector("h3").textContent=`${best.courseName.replace(" Golf Course","")} · ${best.time}`;
-  hero.querySelector(".pick-meta").textContent=`$${best.price} · ${best.course.driveMinutes} min away · ★ ${best.course.rating.toFixed(1)} · weather ${best.course.weatherScore}/100`;
+  hero.querySelector(".pick-meta").textContent=`$${best.price} · ${best.course.driveMinutes} min away · ${best.holes} holes`;
   hero.querySelector(".pick-reason").textContent=buildApiReason(best);
   document.getElementById("openScoutPick").onclick=()=>openApiCourse(best);
 
   document.querySelectorAll(".reco-mini").forEach((el,i)=>{
-    const item=items[i+1]; if(!item)return;
+    const item=items[i+1]; el.hidden=!item;if(!item)return;
     el.querySelector(".scorebadge").textContent=item.flyoverScore;
     el.querySelector("strong").textContent=`${item.courseName.replace(" Golf Course","")} · ${item.time}`;
-    el.querySelector("small:last-child").textContent=`$${item.price} · ${item.course.driveMinutes} min away · ${item.providerLabel}`;
+    el.querySelector("small").textContent=`$${item.price} example price · ${item.course.driveMinutes} min estimate`;
+    let tradeoff=el.querySelector(".reco-tradeoff");if(!tradeoff){tradeoff=document.createElement("span");tradeoff.className="reco-tradeoff";el.append(tradeoff);}
+    const priceDifference=item.price-best.price,driveDifference=item.course.driveMinutes-best.course.driveMinutes;
+    tradeoff.textContent=[priceDifference===0?"Same price as top pick":priceDifference>0?`$${priceDifference} more than top pick`:`$${-priceDifference} less than top pick`,driveDifference===0?"same drive":driveDifference>0?`${driveDifference} min farther`:`${-driveDifference} min closer`].join(" · ");
     el.onclick=()=>openApiCourse(item);
   });
   return true;
@@ -209,6 +214,7 @@ function openApiCourse(item){
   document.getElementById("detailScore").textContent=item.flyoverScore;
   document.getElementById("scoreLabel").textContent=item.flyoverScore>=90?"Flyover Pick":"Great match for you";
   document.getElementById("scoreReason").textContent=buildApiReason(item);
+  document.getElementById("tradeoffs").textContent=item.isLive?"Confirm the final total and cancellation policy with the course.":"These times and prices are examples. Check with the course for current availability, total cost and conditions.";
   [["Price","price"],["Drive","drive"],["Course","course"],["Weather","weather"]].forEach(([id,key])=>{
     const v=item.factors?.[key]??0;
     document.getElementById("bar"+id).style.width=v+"%";
@@ -239,13 +245,16 @@ function openApiBooking(item){
 
 async function runScoutFromApi(){
   if(window.FLYOVER_STORAGE_MODE==="device")return false;
+  const requestVersion=++scoutRequestVersion;
   try{
     const result=await fetchScoutRecommendations();
+    if(requestVersion!==scoutRequestVersion)return false;
     currentApiRecommendations=result.inventory;
     setApiStatus(true,"flyover-golf-api");
     renderApiRecommendations(result.recommendations);
     return true;
   }catch(e){
+    if(requestVersion!==scoutRequestVersion)return false;
     console.warn("API unavailable; using local fallback",e);
     setApiStatus(false);
     return false;
@@ -372,7 +381,9 @@ function scoreCourse(c,p){
 
   total=clamp(total);
   const reasons=[];
-  if(window.FLYOVER_STORAGE_MODE==="device" && window.flyoverDeviceStore.played(c.providerCourseId)){
+  const experience=window.FLYOVER_STORAGE_MODE==="device"?window.flyoverDeviceStore.experience(c.providerCourseId):null;
+  if(experience){total=clamp(total+experience.adjustment);reasons.push(experience.reason);}
+  if(!experience && window.FLYOVER_STORAGE_MODE==="device" && window.flyoverDeviceStore.played(c.providerCourseId)){
     total=clamp(total+2);
     reasons.push("a course you’ve played before");
   }
@@ -533,14 +544,17 @@ function updateBookingTotal(){
 }
 
 function renderScout(){
-  const prefs=getPrefs(),ranked=courses.map(c=>({course:c,...scoreCourse(c,prefs)})).sort((a,b)=>b.score-a.score),best=ranked[0];
-  const hero=$("scoutResult");hero.querySelector(".scorebadge").innerHTML=`${best.score}<small>SCORE</small>`;hero.querySelector("h3").textContent=`${best.course.name.replace(" Golf Course","")} · ${best.slot}`;hero.querySelector(".pick-meta").textContent=`$${best.course.price} · ${best.course.drive} min away · ★ ${best.course.rating.toFixed(1)} · weather ${best.course.weather}/100`;hero.querySelector(".pick-reason").textContent=best.reason;$("openScoutPick").onclick=()=>openCourse(best.course,best.slot);
+  const prefs=getPrefs(),ranked=courses.filter(c=>c.price<=prefs.price&&c.drive<=prefs.drive&&(prefs.holes==="either"||Number(prefs.holes)===c.holes)&&(prefs.ride==="either"||c[prefs.ride])&&c.times.some(t=>prefs.when==="any"||(prefs.when==="morning"?t.h<12:t.h>=12))).map(c=>({course:c,...scoreCourse(c,prefs)})).sort((a,b)=>b.score-a.score),best=ranked[0];
+  renderShortlist(ranked.map(r=>({courseName:r.course.name,courseId:r.course.providerCourseId,price:r.course.price,time:r.slot,flyoverScore:r.score,isLive:false,course:{driveMinutes:r.course.drive},golferFit:{reasons:[]}})));
+  if(!best)return;
+  const hero=$("scoutResult");hero.querySelector(".scorebadge").innerHTML=`${best.score}<small>SCORE</small>`;hero.querySelector("h3").textContent=`${best.course.name.replace(" Golf Course","")} · ${best.slot}`;hero.querySelector(".pick-meta").textContent=`$${best.course.price} · ${best.course.drive} min away · ${best.course.holes} holes`;hero.querySelector(".pick-reason").textContent=best.reason;$("openScoutPick").onclick=()=>openCourse(best.course,best.slot);
   document.querySelectorAll(".reco-mini").forEach((el,i)=>{
-    const r=ranked[i+1]; if(!r)return;
+    const r=ranked[i+1];el.hidden=!r;if(!r)return;
     el.querySelector(".scorebadge").textContent=r.score;
     el.querySelector("strong").textContent=`${r.course.name.replace(" Golf Course","")} · ${r.slot}`;
     const caveat=r.tradeoffs.length?` · ${r.tradeoffs[0]}`:"";
-    el.querySelector("small:last-child").textContent=`$${r.course.price} · ${r.course.drive} min away${caveat}`;
+    el.querySelector("small").textContent=`$${r.course.price} · ${r.course.drive} min away${caveat}`;
+    el.querySelector(".reco-tradeoff")?.remove();
     el.onclick=()=>openCourse(r.course,r.slot)
   });
 }
@@ -609,3 +623,25 @@ document.querySelectorAll(".explore-filter").forEach(button=>button.onclick=()=>
 refreshInventory().then(async()=>{renderScout();renderExplore();renderSaved();renderRounds();const online=await checkApiHealth();if(online)await runScoutFromApi();});
 
 async function refreshScout(){renderScout();await runScoutFromApi();}
+
+function renderShortlist(items){
+  const picks=items.slice(0,3),empty=!picks.length;
+  $("scoutResult").hidden=empty;$("scoutEmpty").hidden=!empty;
+  document.querySelector(".reco-list").hidden=empty;$("alternativesTitle").hidden=picks.length<2;
+  document.querySelector(".scout-compare").hidden=empty;
+  $("scoutSummary").textContent=empty?"No matches for your current limits.":`${picks.length} ${picks.length===1?"course fits":"courses fit"} your limits · ${picks.every(p=>p.isLive)?"Provider availability":"Demo availability"}`;
+  if(empty){$("scoutComparison").replaceChildren();return;}
+  $("pickEvidence").textContent=items[0].golferFit?.experience?`Based on your review from ${items[0].golferFit.experience.reviewedOn}.`:"No personal review of this course yet. Your feedback makes this more useful.";
+  const container=$("scoutComparison");container.replaceChildren();
+  const table=document.createElement("table"),caption=document.createElement("caption");caption.textContent="Example prices; drive times are estimates.";table.append(caption);
+  const header=document.createElement("tr");for(const title of ["Course","Price","Drive","Fit"]){const th=document.createElement("th");th.scope="col";th.textContent=title;header.append(th);}const thead=document.createElement("thead");thead.append(header);table.append(thead);
+  const body=document.createElement("tbody");for(const pick of picks){const row=document.createElement("tr");for(const value of [pick.courseName,`$${pick.price}`,`${pick.course.driveMinutes} min`,`${pick.flyoverScore}/100`]){const td=document.createElement("td");td.textContent=value;row.append(td);}body.append(row);}table.append(body);container.append(table);
+}
+$("widenScout").onclick=()=>{
+  $("prefPrice").value="80";$("prefDrive").value="60";$("prefWhen").value="any";
+  for(const id of ["prefPrice","prefDrive","prefWhen"])$(id)._scoutSync?.();
+  prefState.holes="either";prefState.ride="either";
+  document.querySelectorAll('.scout-toggle[data-pref-group="holes"],.scout-toggle[data-pref-group="ride"]').forEach(button=>{const active=button.dataset.value==="either";button.classList.toggle("active",active);button.setAttribute("aria-pressed",String(active));});
+  refreshScout();
+};
+$("reviewFromScout").onclick=()=>{showScreen("rounds");document.querySelector('[data-nav="rounds"]').click();};

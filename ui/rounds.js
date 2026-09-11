@@ -1,7 +1,7 @@
 /* API-backed scores are separate from browser-local booking handoffs. */
 (() => {
   const el = id => document.getElementById(id);
-  let rounds = [], editing = null, requestId = null, busy = false, generation = 0;
+  let rounds = [], editing = null, requestId = null, busy = false, generation = 0, reviewing = null;
   const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
   async function api(path, method = "GET", body) {
     if(window.FLYOVER_STORAGE_MODE==="device") return window.flyoverDeviceStore.request(path,method,body);
@@ -20,9 +20,28 @@
   }
   function renderHistory() {
     const sorted = [...rounds].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt.localeCompare(a.createdAt));
-    el("playedRounds").innerHTML = sorted.length ? sorted.map(round => `<article class="round-card"><div class="round-card-top"><div><span class="round-status">${round.score ? "SCORE SAVED" : "AWAITING SCORE"}</span><h2>${escape(round.courseName)}</h2></div><strong class="round-card-price">${round.score?.strokes ?? "—"}<small>strokes</small></strong></div><div class="round-details">${escape(round.date)} · ${round.holes} holes${round.tees?` · ${escape(round.tees)} tees`:""}${round.score?.par!=null?` · ${round.score.strokes-round.score.par>0?"+":""}${round.score.strokes-round.score.par} to par`:""}</div><button type="button" class="round-button" data-edit-score="${escape(round.id)}">${round.score?"Edit score":"Enter score"}</button></article>`).join("") : '<div class="score-empty"><strong>Your first score starts here.</strong><p>Log a round to build your history and see your averages.</p></div>';
+    el("playedRounds").innerHTML = sorted.length ? sorted.map(round => `<article class="round-card"><div class="round-card-top"><div><span class="round-status">${round.score ? "SCORE SAVED" : "AWAITING SCORE"}</span><h2>${escape(round.courseName)}</h2></div><strong class="round-card-price">${round.score?.strokes ?? "—"}<small>strokes</small></strong></div><div class="round-details">${escape(round.date)} · ${round.holes} holes${round.tees?` · ${escape(round.tees)} tees`:""}${round.score?.par!=null?` · ${round.score.strokes-round.score.par>0?"+":""}${round.score.strokes-round.score.par} to par`:""}</div><button type="button" class="round-button" data-edit-score="${escape(round.id)}">${round.score?"Edit score":"Enter score"}</button>${round.score?`<button type="button" class="round-button review-round" data-review-round="${escape(round.id)}">${round.feedback?"Edit review":"How was it?"}</button>`:""}${round.feedback?`<p class="feedback-note">${round.feedback.playAgain==="yes"?"You’d play here again":round.feedback.playAgain==="no"?"You’d prefer another course":"You might play here again"} · Scout remembers</p>`:""}</article>`).join("") : '<div class="score-empty"><strong>Your first score starts here.</strong><p>Log a round to build your history and see your averages.</p></div>';
     el("playedRounds").querySelectorAll("[data-edit-score]").forEach(button => button.onclick=()=>open(rounds.find(round=>round.id===button.dataset.editScore)));
   }
+  function openFeedback(round){
+    reviewing=round;el("feedbackForm").reset();el("feedbackCourse").textContent=`${round.courseName} · ${round.date}`;
+    el("feedbackAgain").value=round.feedback?.playAgain||"";
+    for(const name of ["Value","Conditions","Pace"])el("feedback"+name).value=round.feedback?.[name.toLowerCase()]??"";
+    el("feedbackError").textContent="";el("feedbackDialog").showModal();el("feedbackAgain").focus();
+  }
+  el("playedRounds").addEventListener("click",event=>{const button=event.target.closest("[data-review-round]");if(button)openFeedback(rounds.find(round=>round.id===button.dataset.reviewRound));});
+  el("closeFeedback").onclick=()=>{if(!busy)el("feedbackDialog").close();};
+  el("feedbackDialog").addEventListener("cancel",event=>{if(busy)event.preventDefault();});
+  el("feedbackForm").onsubmit=async event=>{
+    event.preventDefault();if(busy)return;busy=true;el("saveFeedback").disabled=true;el("feedbackError").textContent="";
+    try{
+      const feedback={playAgain:el("feedbackAgain").value,version:reviewing.version};
+      for(const name of ["Value","Conditions","Pace"])feedback[name.toLowerCase()]=el("feedback"+name).value?Number(el("feedback"+name).value):null;
+      await api(`/rounds/${encodeURIComponent(reviewing.id)}/feedback`,"PUT",feedback);
+      el("feedbackDialog").close();await load("Review saved. Scout now reflects your experience.");await refreshScout();
+    }catch(error){el("feedbackError").textContent=error.message;}
+    finally{busy=false;el("saveFeedback").disabled=false;}
+  };
   async function load(message) {
     const version=++generation;
     el("scoreStatus").textContent="Loading your rounds…";
@@ -121,7 +140,7 @@
     }catch(error){el("accountMessage").textContent=error instanceof SyntaxError?"This file is not a valid Flyover export.":error.message;}
     finally{el("importScores").disabled=false;el("importScoresFile").value="";}
   };
-  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy&&!el("scoreDialog").open&&el("rounds").classList.contains("active"))load();});
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy&&!el("scoreDialog").open&&!el("feedbackDialog").open&&el("rounds").classList.contains("active"))load();});
   window.addEventListener("pageshow",event=>{if(event.persisted)load();});
   if(location.hash==="#rounds")showScreen("rounds");
   load();

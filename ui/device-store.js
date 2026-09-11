@@ -10,6 +10,15 @@
     return {rounds:rows.length,averageScore:scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length*10)/10:null,bestScore:scores.length?Math.min(...scores):null};
   };
   window.flyoverDeviceStore={
+    experience(courseId){
+      try{
+        const round=read().rounds.filter(row=>row.courseId===courseId&&row.feedback&&row.score).sort((a,b)=>b.date.localeCompare(a.date)||(b.updatedAt||b.createdAt).localeCompare(a.updatedAt||a.createdAt))[0];
+        if(!round)return null;
+        const f=round.feedback;let adjustment=f.playAgain==="yes"?6:f.playAgain==="no"?-12:0;
+        for(const key of ["value","conditions","pace"]){if(f[key]>=4)adjustment++;else if(f[key]!=null&&f[key]<=2)adjustment-=2;}
+        return {adjustment,reason:f.playAgain==="yes"?"you said you’d play here again":f.playAgain==="no"?"you’d prefer another course":"you were unsure about returning"};
+      }catch{return null;}
+    },
     played(courseId){try{return read().rounds.some(row=>row.courseId===courseId&&row.score);}catch{return false;}},
     async request(path,method,body){
       if(method==="GET"){
@@ -29,7 +38,12 @@
         }else if(method==="PUT"){
           round=state.rounds.find(row=>row.id===decodeURIComponent(path.split('/')[2]));
           if(!round)throw Error("Round not found. Refresh your rounds and try again.");
-          round={...round,score:body,updatedAt:new Date().toISOString(),status:"completed"};
+          if(path.endsWith("/feedback")){
+            if(!round.score||!["yes","maybe","no"].includes(body.playAgain))throw Error("Save a score and choose whether you would play here again.");
+            const feedback={playAgain:body.playAgain};
+            for(const field of ["value","conditions","pace"]){const value=body[field];if(value!=null&&(!Number.isInteger(value)||value<1||value>5))throw Error("Ratings must be from 1 to 5.");feedback[field]=value??null;}
+            round={...round,feedback,updatedAt:new Date().toISOString()};
+          }else round={...round,score:body,updatedAt:new Date().toISOString(),status:"completed"};
         }else throw Error("Unsupported request.");
         const {strokes,par}=round.score;
         if(![9,18].includes(round.holes)||!Number.isInteger(strokes)||strokes<round.holes||strokes>round.holes*15)throw Error("Enter a valid total score.");

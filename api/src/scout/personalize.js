@@ -1,3 +1,4 @@
+import { courseExperience } from "../golfer/feedback.js";
 export function personalize(item, profile = {}, rounds = [], preferences = {}) {
   const reasons = [];
   let adjustment = 0;
@@ -5,7 +6,9 @@ export function personalize(item, profile = {}, rounds = [], preferences = {}) {
     adjustment += 5;
     reasons.push("One of your favorite courses (+5).");
   }
-  if (rounds.some(round => round.courseId === item.courseId && round.status === "completed")) {
+  const experience=courseExperience(item.courseId,rounds);
+  if(experience){adjustment+=experience.adjustment;reasons.push(...experience.reasons);}
+  if (!experience && rounds.some(round => round.courseId === item.courseId && round.status === "completed")) {
     adjustment += 2;
     reasons.push("You have played this course before (+2).");
   }
@@ -18,6 +21,6 @@ export function personalize(item, profile = {}, rounds = [], preferences = {}) {
     adjustment += 3;
     reasons.push(`Supports your saved ${profile.preferredRide} preference (+3).`);
   }
-  const flyoverScore = Math.min(100, item.flyoverScore + adjustment);
-  return { ...item, baseFlyoverScore: item.flyoverScore, flyoverScore, personalizedFlyoverScore: flyoverScore, golferFit: { adjustment: flyoverScore - item.flyoverScore, reasons, personalized: reasons.length > 0 } };
+  const flyoverScore = Math.max(0, Math.min(100, item.flyoverScore + adjustment));
+  return { ...item, baseFlyoverScore: item.flyoverScore, flyoverScore, personalizedFlyoverScore: flyoverScore, golferFit: { experience, adjustment: flyoverScore - item.flyoverScore, reasons, personalized: reasons.length > 0 } };
 }

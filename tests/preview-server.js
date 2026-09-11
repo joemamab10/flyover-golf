@@ -5,6 +5,7 @@ import { resolve, extname } from "node:path";
 import { database } from "./database.js";
 import worker from "../dist/server/index.js";
 const {db}=database();
+const port=Number(process.env.TEST_PORT||8082);
 const assets={async fetch(request){
   const url=new URL(request.url),path=url.pathname.endsWith('/')?url.pathname+'index.html':url.pathname;
   const root=resolve('dist/client'),file=resolve(root,'.'+path);
@@ -18,8 +19,8 @@ createServer(async(req,res)=>{
   const user=(req.headers.cookie||'').match(/test-golfer=(alice|bob)/)?.[1];
   if(user){headers.set('oai-authenticated-user-id',user);headers.set('oai-authenticated-user-email',user+'@example.com');}
   const chunks=[];for await(const chunk of req)chunks.push(chunk);
-  const request=new Request('http://127.0.0.1:8082'+req.url,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(chunks)});
+  const request=new Request(`http://127.0.0.1:${port}`+req.url,{method:req.method,headers,body:['GET','HEAD'].includes(req.method)?undefined:Buffer.concat(chunks)});
   const result=await worker.fetch(request,{DB:db,ASSETS:assets});
   res.writeHead(result.status,Object.fromEntries(result.headers));res.end(Buffer.from(await result.arrayBuffer()));
  }catch(error){res.writeHead(500);res.end(error.message);}
-}).listen(8082,'127.0.0.1',()=>console.log('Isolated cloud test preview: http://127.0.0.1:8082'));
+}).listen(port,'127.0.0.1',()=>console.log('Isolated cloud test preview: http://127.0.0.1:8082'));

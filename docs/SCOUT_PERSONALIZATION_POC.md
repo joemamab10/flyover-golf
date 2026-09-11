@@ -94,3 +94,22 @@ Publishing the main branch updates the existing GitHub Pages site. Pages cannot
 run the Node API. Before enabling a public backend, add authenticated user-scoped
 storage. For an appropriately secured backend, set `window.FLYOVER_API_BASE_URL`
 before `config.js` and configure its CORS origins.
+
+## Personal course feedback and shortlist
+
+Completed rounds now accept `PUT /api/rounds/:id/feedback` with `playAgain`
+(`yes`, `maybe`, `no`) and optional integer `value`, `conditions`, `pace` ratings
+from 1–5. Cloud edits require the current round `version`, like score corrections.
+Feedback remains account-scoped and is preserved during imports and score edits.
+
+The most recent played-date review of a course replaces the +2 familiarity bonus.
+Return intent contributes +6 / 0 / -12; each rating of 4–5 adds 1, and each rating
+of 1–2 subtracts 2. Final fit scores stay within 0–100. The UI identifies the review
+date rather than suggesting the feedback describes current course conditions.
+
+Scout now excludes options outside price, drive, player count, hole format,
+walking/cart and time-of-day limits before ranking. It shows three distinct
+courses, an explicit empty state, an option to broaden the search, and a comparison
+of example price, estimated drive and fit. Alternative labels reflect rank rather
+than invented best-weather or best-value awards. The pilot materials in
+`docs/pilot/` describe how to test these hypotheses with ten golfers.

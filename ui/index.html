@@ -18,14 +18,14 @@
 <div class="content home-content">
   <div class="finder">
     <h2>Flyover Scout</h2>
-    <p>Set your preferences and Scout will rank the best available rounds for you.</p>
+    <p>Three courses that fit your day. Clear reasons to pick one.</p>
     <div class="quick"><button id="quickMorning">Morning</button><button id="quickFour">4 Players</button></div>
-    <button class="find-btn" id="openRefine">REFINE & FIND MY ROUND</button>
+    <button class="find-btn" id="openRefine">FIND MY THREE</button>
   </div>
 
   <div class="scout-panel" id="scoutPanel">
     <h3>Refine Flyover Scout</h3>
-    <p>Tell us what matters most and we’ll rerank the available rounds.</p>
+    <p>Set your limits. Scout will only show options that fit.</p>
     <div class="scout-grid">
       <div class="scout-field"><label>WHEN</label><select id="prefWhen"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="any">Any time</option></select></div>
       <div class="scout-field"><label>PLAYERS</label><select id="prefPlayers"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>
@@ -40,24 +40,29 @@
 
   <div class="prototype-status"><span class="api-status-dot" id="apiStatusDot"></span><div><strong id="apiStatusTitle">Prototype mode · Checking connection</strong><span id="apiStatusText">Real courses with demo tee times, prices and Flyover Scores.</span></div></div>
 
+  <div id="scoutSummary" class="scout-summary" role="status" aria-live="polite"></div>
+  <div id="scoutEmpty" class="score-empty" hidden><strong>No courses fit all your limits.</strong><p>Try a higher budget, a longer drive, or a different number of holes. Demo inventory is limited.</p><button type="button" id="widenScout" class="round-button">Broaden my search</button></div>
   <div class="pick-hero" id="scoutResult">
     <div class="pick-kicker">FLYOVER PICK</div>
     <span class="scorebadge">92<small>SCORE</small></span>
     <h3>Waveland · 8:30 AM</h3>
     <div class="pick-meta">$42 · 12 min away · ★ 4.6 · weather 93/100</div>
     <div class="pick-reason">Best overall match for your morning, budget, drive time, and 4-player preferences.</div>
+    <div id="pickEvidence" class="pick-evidence"></div>
     <div class="pick-actions">
-      <button class="pick-primary" id="openScoutPick">VIEW & BOOK</button>
+      <button class="pick-primary" id="openScoutPick">EXPLORE THIS PICK</button>
       <button class="pick-secondary" id="refineScout">REFINE</button>
     </div>
   </div>
 
-  <div class="supporting-title">OTHER STRONG MATCHES</div><div class="rank-note">Scout shows the best available tee time from each course. Open a course to see all of its times.</div>
+  <div class="supporting-title" id="alternativesTitle">YOUR OTHER TWO</div><div class="rank-note">Compare the tradeoffs. Times and prices are examples until a course confirms them.</div>
   <div class="reco-list">
-    <button class="reco-mini"><span class="mini-kicker">💰 BEST VALUE</span><span class="reco-score"><span class="scorebadge">89</span><span class="reco-score-label">SCORE</span></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
-    <button class="reco-mini"><span class="mini-kicker">⚡ PLAY SOON</span><span class="reco-score"><span class="scorebadge">86</span><span class="reco-score-label">SCORE</span></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
-    <button class="reco-mini"><span class="mini-kicker">☀️ BEST WEATHER</span><span class="reco-score"><span class="scorebadge">84</span><span class="reco-score-label">SCORE</span></span><strong>The Legacy · 8:40 AM</strong><small>$48 · 28 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">OPTION 2</span><span class="reco-score"><span class="scorebadge">89</span><span class="reco-score-label">SCORE</span></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
+    <button class="reco-mini"><span class="mini-kicker">OPTION 3</span><span class="reco-score"><span class="scorebadge">86</span><span class="reco-score-label">SCORE</span></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
+
   </div>
+<details class="scout-compare"><summary>Compare your shortlist</summary><div id="scoutComparison"></div></details>
+  <div class="scout-learning"><strong>Scout learns from your rounds.</strong><p>After you play, tell us about value, conditions and pace. Your next shortlist will reflect that experience.</p><button type="button" id="reviewFromScout" class="round-button">Review a round</button></div>
 </div>
 </section>
 
@@ -224,6 +229,16 @@
   <button type="submit" id="saveScore" class="round-button">Save score</button>
 </form>
 </dialog>
+<dialog id="feedbackDialog" aria-labelledby="feedbackTitle"><form id="feedbackForm" class="score-form">
+<div class="rounds-toolbar"><h2 id="feedbackTitle">How was the round?</h2><button type="button" id="closeFeedback" class="score-close" aria-label="Close round review">×</button></div>
+<p id="feedbackCourse" class="score-help"></p>
+<label>Would you play here again?<select id="feedbackAgain" required><option value="">Choose an answer</option><option value="yes">Yes, take me back</option><option value="maybe">Maybe</option><option value="no">No, show me other courses</option></select></label>
+<label>Value for money<select id="feedbackValue"><option value="">Not rated</option><option value="1">1 — Poor</option><option value="2">2 — Below expectations</option><option value="3">3 — Fair</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></label>
+<label>Course conditions<select id="feedbackConditions"><option value="">Not rated</option><option value="1">1 — Poor</option><option value="2">2 — Below expectations</option><option value="3">3 — Fair</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select></label>
+<label>Pace of play<select id="feedbackPace"><option value="">Not rated</option><option value="1">1 — Far too slow</option><option value="2">2 — Slow</option><option value="3">3 — Acceptable</option><option value="4">4 — Good</option><option value="5">5 — Just right</option></select></label>
+<p class="score-help">Private to you. Your latest review of this course helps Scout rank future picks.</p>
+<p id="feedbackError" class="score-error" role="alert"></p><button type="submit" id="saveFeedback" class="round-button">Save review & update Scout</button>
+</form></dialog>
 <script src="config.js"></script>
 <script src="device-store.js"></script>
 <script src="app.js"></script>
