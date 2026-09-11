@@ -24,10 +24,23 @@
       if(method==="GET"){
         const {rounds}=read();
         if(path==="/rounds")return {rounds};
+        if(path==="/account/export")return {format:"flyover-rounds-v1",exportedAt:new Date().toISOString(),profile:{},rounds};
         if(path==="/stats")return {stats:{completedRounds:rounds.filter(row=>row.score).length,nineHoles:group(rounds,9),eighteenHoles:group(rounds,18)}};
       }
       const mutate=()=>{
         const state=read();
+        if(method==="DELETE"){
+          if(path==="/account"){
+            if(body.confirmation!=="DELETE")throw Error("Type DELETE to confirm.");
+            localStorage.removeItem(key);return {ok:true};
+          }
+          const id=decodeURIComponent(path.split("/")[2]);
+          const round=state.rounds.find(row=>row.id===id);
+          if(!round)throw Error("Round not found. Refresh Rounds.");
+          if(round.version!==body.version)throw Error("This round changed. Refresh before deleting it.");
+          state.rounds=state.rounds.filter(row=>row.id!==id);
+          localStorage.setItem(key,JSON.stringify(state));return {ok:true};
+        }
         let round;
         if(method==="POST"&&path==="/rounds"){
           const existing=state.rounds.find(row=>row.requestId===body.requestId);
@@ -45,10 +58,11 @@
             round={...round,feedback,updatedAt:new Date().toISOString()};
           }else round={...round,score:body,updatedAt:new Date().toISOString(),status:"completed"};
         }else throw Error("Unsupported request.");
+        round.version=(round.version||0)+1;
         const {strokes,par}=round.score;
         if(![9,18].includes(round.holes)||!Number.isInteger(strokes)||strokes<round.holes||strokes>round.holes*15)throw Error("Enter a valid total score.");
         if(par!==null&&(!Number.isInteger(par)||par<round.holes*3||par>round.holes*6))throw Error("Enter a valid par or leave it blank.");
-        if(!/^\d{4}-\d{2}-\d{2}$/.test(round.date)||!Number.isFinite(Date.parse(round.date))||new Date(round.date).toISOString().slice(0,10)!==round.date||round.date>new Date().toISOString().slice(0,10))throw Error("Choose a valid date on or before today.");
+        if(!/^\d{4}-\d{2}-\d{2}$/.test(round.date)||!Number.isFinite(Date.parse(round.date))||new Date(round.date).toISOString().slice(0,10)!==round.date||round.date>FlyoverDiscovery.localDate())throw Error("Choose a valid date on or before today.");
         const index=state.rounds.findIndex(row=>row.id===round.id);
         if(index<0)state.rounds.unshift(round);else state.rounds[index]=round;
         try{localStorage.setItem(key,JSON.stringify(state));}catch{throw Error("Your browser could not save this score. Free up storage or allow site storage and try again.");}

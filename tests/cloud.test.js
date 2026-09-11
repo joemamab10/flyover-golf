@@ -31,9 +31,9 @@ test("rounds, profile, stats and personalization are scoped to the authenticated
   assert.deepEqual((await bob("/api/golfer-profile")).data.profile,{});
   assert.equal((await alice("/api/stats")).data.stats.eighteenHoles.averageScore,84);
   assert.equal((await bob("/api/stats")).data.stats.completedRounds,0);
-  const aScout=await alice("/api/scout/recommendations","POST",{}),bScout=await bob("/api/scout/recommendations","POST",{});
-  assert.equal(aScout.data.inventory.find(row=>row.courseId==="waveland").golferFit.personalized,true);
-  assert.equal(bScout.data.inventory.find(row=>row.courseId==="waveland").golferFit.personalized,false);
+  const aScout=await alice("/api/discovery","POST",{date:"2026-09-12"}),bScout=await bob("/api/discovery","POST",{date:"2026-09-12"});
+  assert.equal(aScout.data.courses.find(row=>row.id==="waveland").reviewedOn,null);
+  assert.equal(bScout.data.courses.find(row=>row.id==="waveland").reviewedOn,null);
  }finally{sql.close();}
 });
 
@@ -72,10 +72,44 @@ test("feedback is private, versioned and survives score corrections and imports"
   assert.equal((await alice(`/api/rounds/${id}/feedback`,"PUT",{playAgain:"yes",version:1})).status,409);
   await alice(`/api/rounds/${id}/score`,"PUT",{strokes:83,par:72,version:2});
   assert.equal((await alice("/api/rounds")).data.rounds[0].feedback.playAgain,"no");
-  const scout=await alice("/api/scout/recommendations","POST",{});
-  assert.ok(scout.data.inventory.find(row=>row.courseId==="waveland").golferFit.adjustment<0);
+  const scout=await alice("/api/discovery","POST",{date:"2026-09-12"});
+  assert.ok(scout.data.courses.find(row=>row.id==="waveland").priority<0);
   const payload={...newRound,id:"dddddddd-dddd-dddd-dddd-dddddddddddd",feedback:{playAgain:"yes",value:5}};
   assert.equal((await alice("/api/rounds/import","POST",{rounds:[payload]})).status,200);
   assert.ok((await alice("/api/rounds")).data.rounds.some(row=>row.feedback?.value===5));
+ }finally{sql.close();}
+});
+
+
+test("export, deletion and recovery preserve account boundaries",async()=>{
+ const {db,sql}=database();const alice=client(db),bob=client(db,"bob");
+ try{
+  const id=(await alice("/api/rounds","POST",newRound)).data.round.id;
+  await bob("/api/rounds","POST",newRound);
+  await alice("/api/golfer-profile","PUT",{displayName:"Alice"});
+  const backup=(await alice("/api/account/export")).data;
+  assert.equal(backup.profile.displayName,"Alice");assert.equal(backup.rounds.length,1);
+  assert.equal((await alice(`/api/rounds/${id}`,"DELETE",{version:0})).status,409);
+  assert.equal((await alice("/api/account","DELETE",{confirmation:"no"})).status,400);
+  assert.equal((await alice(`/api/rounds/${id}`,"DELETE",{version:1})).status,200);
+  assert.equal((await alice("/api/rounds")).data.rounds.length,0);
+  await alice("/api/rounds/import","POST",{rounds:backup.rounds});
+  assert.equal((await alice("/api/rounds")).data.rounds[0].score.strokes,84);
+  assert.equal((await alice("/api/account","DELETE",{confirmation:"DELETE"})).status,200);
+  assert.deepEqual((await alice("/api/account/export")).data.profile,{});
+  assert.equal((await bob("/api/rounds")).data.rounds.length,1);
+ }finally{sql.close();}
+});
+
+test("request limits, bounded payloads and database health fail safely",async()=>{
+ const {db,sql}=database();
+ try{
+  assert.equal((await client(db)("/health")).status,200);
+  assert.equal((await client(db)("/api/discovery","POST",{date:"2026-02-30"})).status,400);
+  assert.equal((await client(db)("/api/golfer-profile","PUT",{displayName:"x".repeat(200001)})).status,413);
+  const limited=client(db,"limited");
+  for(let i=0;i<120;i++)assert.equal((await limited("/api/rounds")).status,200);
+  const result=await limited("/api/rounds");assert.equal(result.status,429);assert.equal(result.headers.get("retry-after"),"60");assert.ok(result.data.error.requestId);
+  sql.exec("DROP TABLE golfer_rounds");assert.equal((await client(db)("/health")).status,503);
  }finally{sql.close();}
 });

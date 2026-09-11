@@ -1,3 +1,4 @@
+import { localDate } from "../../shared/discovery.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -7,8 +8,8 @@ import { webcrypto } from "node:crypto";
 const source = await readFile(new URL("../../ui/device-store.js", import.meta.url), "utf8");
 function setup() {
   const data = new Map();
-  const localStorage = { getItem:key=>data.get(key)??null, setItem:(key,value)=>data.set(key,value) };
-  const context = vm.createContext({ window:{}, localStorage, navigator:{}, crypto:webcrypto, courses:[{ providerCourseId:"waveland", name:"Waveland" }] });
+  const localStorage = { getItem:key=>data.get(key)??null, removeItem:key=>data.delete(key), setItem:(key,value)=>data.set(key,value) };
+  const context = vm.createContext({ window:{}, FlyoverDiscovery:{localDate}, localStorage, navigator:{}, crypto:webcrypto, courses:[{ providerCourseId:"waveland", name:"Waveland" }] });
   vm.runInContext(source,context);
   return { store:context.window.flyoverDeviceStore, localStorage };
 }
@@ -40,4 +41,15 @@ test("device feedback changes course fit and leaves the score intact",async()=>{
  assert.equal((await store.request("/rounds","GET")).rounds[0].score.strokes,84);
  await assert.rejects(store.request(`/rounds/${round.id}/feedback`,"PUT",{playAgain:"yes",pace:9}));
  assert.equal(store.experience("waveland").adjustment,-14);
+});
+
+test("device exports and confirmed deletion retain other rounds",async()=>{
+ const {store}=setup();const {round}=await store.request("/rounds","POST",payload);
+ assert.equal((await store.request("/account/export","GET")).rounds.length,1);
+ await assert.rejects(store.request(`/rounds/${round.id}`,"DELETE",{version:0}));
+ await store.request(`/rounds/${round.id}`,"DELETE",{version:round.version});
+ assert.equal((await store.request("/rounds","GET")).rounds.length,0);
+ await assert.rejects(store.request("/account","DELETE",{confirmation:"no"}));
+ await store.request("/account","DELETE",{confirmation:"DELETE"});
+ assert.equal((await store.request("/rounds","GET")).rounds.length,0);
 });

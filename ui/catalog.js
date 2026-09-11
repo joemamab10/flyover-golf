@@ -1,0 +1,149 @@
+const courses = [
+  {
+    "id": "waveland",
+    "providerCourseId": "waveland",
+    "name": "Waveland Golf Course",
+    "city": "Des Moines, IA",
+    "phone": "515-248-6302",
+    "website": "https://golfwaveland.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "ah-blank",
+    "providerCourseId": "ah-blank",
+    "name": "A.H. Blank Golf Course",
+    "city": "Des Moines, IA",
+    "phone": "515-248-6300",
+    "website": "https://golfblank.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "bright-grandview",
+    "providerCourseId": "bright-grandview",
+    "name": "Bright Grandview Golf Course",
+    "city": "Des Moines, IA",
+    "phone": "515-248-6301",
+    "website": "https://golfbrightgrandview.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "legacy",
+    "providerCourseId": "legacy",
+    "name": "The Legacy Golf Club",
+    "city": "Norwalk, IA",
+    "phone": "515-287-7885",
+    "website": "https://thelegacygolfclub.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course",
+    "aliases": [
+      "legacy-norwalk"
+    ]
+  },
+  {
+    "id": "tci",
+    "providerCourseId": "tci",
+    "name": "Tournament Club of Iowa",
+    "city": "Polk City, IA",
+    "phone": "515-984-9440",
+    "website": "https://tcofiowa.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course",
+    "aliases": [
+      "tci-polk-city"
+    ]
+  },
+  {
+    "id": "jester-park",
+    "providerCourseId": "jester-park",
+    "name": "Jester Park Golf Course",
+    "city": "Granger, IA",
+    "phone": "515-999-2903",
+    "website": "https://jesterparkgolf.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "otter-creek",
+    "providerCourseId": "otter-creek",
+    "name": "Otter Creek Golf Course",
+    "city": "Ankeny, IA",
+    "phone": "515-965-6464",
+    "website": "https://www.ottercreekankeny.com/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "copper-creek",
+    "providerCourseId": "copper-creek",
+    "name": "Copper Creek Golf Club",
+    "city": "Pleasant Hill, IA",
+    "phone": "515-263-1600",
+    "website": "https://golfcoppercreek.com/our-course/",
+    "verifiedOn": "2026-09-11",
+    "verifiedFields": [
+      "name",
+      "city",
+      "website"
+    ],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  },
+  {
+    "id": "beaver-creek",
+    "providerCourseId": "beaver-creek",
+    "name": "Beaver Creek Golf Club",
+    "city": "Grimes, IA",
+    "phone": null,
+    "website": "https://beavercreek-golf.com/",
+    "verifiedOn": null,
+    "verifiedFields": [],
+    "availability": "Check with course",
+    "pricing": "Check with course"
+  }
+]
+;

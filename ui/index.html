@@ -1,102 +1,12 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Flyover Golf Scout</title>
-<link rel="stylesheet" href="styles.css">
-</head>
-<body>
-<div class="phone">
-<section id="home" class="screen active">
-<header>
-  <div class="brand"><div class="logo"><img class="brandmark" src="assets/flyover-mark.png" alt="Flyover Golf F flag"><div>FLYOVER<small>GOLF</small></div></div></div>
-  <div class="header-location"><span class="location-pin">⌖</span><span><small>YOUR LOCATION</small><strong>Des Moines, IA</strong></span></div>
-  <div class="hello">Good morning 👋</div>
-  <div class="heroq">Let’s find your round.</div>
-</header>
-<div class="content home-content">
-  <div class="finder">
-    <h2>Flyover Scout</h2>
-    <p>Three courses that fit your day. Clear reasons to pick one.</p>
-    <div class="quick"><button id="quickMorning">Morning</button><button id="quickFour">4 Players</button></div>
-    <button class="find-btn" id="openRefine">FIND MY THREE</button>
-  </div>
-
-  <div class="scout-panel" id="scoutPanel">
-    <h3>Refine Flyover Scout</h3>
-    <p>Set your limits. Scout will only show options that fit.</p>
-    <div class="scout-grid">
-      <div class="scout-field"><label>WHEN</label><select id="prefWhen"><option value="morning">Morning</option><option value="afternoon">Afternoon</option><option value="any">Any time</option></select></div>
-      <div class="scout-field"><label>PLAYERS</label><select id="prefPlayers"><option>1</option><option>2</option><option>3</option><option selected>4</option></select></div>
-      <div class="scout-field"><label>MAX DRIVE</label><select id="prefDrive"><option value="15">15 min</option><option value="30" selected>30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
-      <div class="scout-field"><label>MAX PRICE</label><select id="prefPrice"><option value="40">$40</option><option value="50">$50</option><option value="65" selected>$65</option><option value="80">$80</option></select></div>
-      <div class="scout-field scout-full"><label>HOLES</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" aria-pressed="true" data-pref-group="holes" data-value="18">18 holes</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="holes" data-value="9">9 holes</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="holes" data-value="either">Either</button></div></div>
-      <div class="scout-field scout-full"><label>RIDING</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" aria-pressed="true" data-pref-group="ride" data-value="cart">Cart</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="ride" data-value="walk">Walk</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="ride" data-value="either">Either</button></div></div>
-      <div class="scout-field scout-full"><label>STYLE</label><div class="scout-toggle-row"><button type="button" class="scout-toggle active" aria-pressed="true" data-pref-group="style" data-value="balanced">Best overall</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="style" data-value="value">Cheapest</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="style" data-value="quality">Best course</button><button type="button" class="scout-toggle" aria-pressed="false" data-pref-group="style" data-value="flex">I’m flexible</button></div></div>
-    </div>
-    <button type="button" class="scout-find" id="runScout">FIND MY ROUND</button>
-  </div>
-
-  <div class="prototype-status"><span class="api-status-dot" id="apiStatusDot"></span><div><strong id="apiStatusTitle">Prototype mode · Checking connection</strong><span id="apiStatusText">Real courses with demo tee times, prices and Flyover Scores.</span></div></div>
-
-  <div id="scoutSummary" class="scout-summary" role="status" aria-live="polite"></div>
-  <div id="scoutEmpty" class="score-empty" hidden><strong>No courses fit all your limits.</strong><p>Try a higher budget, a longer drive, or a different number of holes. Demo inventory is limited.</p><button type="button" id="widenScout" class="round-button">Broaden my search</button></div>
-  <div class="pick-hero" id="scoutResult">
-    <div class="pick-kicker">FLYOVER PICK</div>
-    <span class="scorebadge">92<small>SCORE</small></span>
-    <h3>Waveland · 8:30 AM</h3>
-    <div class="pick-meta">$42 · 12 min away · ★ 4.6 · weather 93/100</div>
-    <div class="pick-reason">Best overall match for your morning, budget, drive time, and 4-player preferences.</div>
-    <div id="pickEvidence" class="pick-evidence"></div>
-    <div class="pick-actions">
-      <button class="pick-primary" id="openScoutPick">EXPLORE THIS PICK</button>
-      <button class="pick-secondary" id="refineScout">REFINE</button>
-    </div>
-  </div>
-
-  <div class="supporting-title" id="alternativesTitle">YOUR OTHER TWO</div><div class="rank-note">Compare the tradeoffs. Times and prices are examples until a course confirms them.</div>
-  <div class="reco-list">
-    <button class="reco-mini"><span class="mini-kicker">OPTION 2</span><span class="reco-score"><span class="scorebadge">89</span><span class="reco-score-label">SCORE</span></span><strong>A.H. Blank · 7:48 AM</strong><small>$36 · 34 min away</small></button>
-    <button class="reco-mini"><span class="mini-kicker">OPTION 3</span><span class="reco-score"><span class="scorebadge">86</span><span class="reco-score-label">SCORE</span></span><strong>Bright Grandview · 7:56 AM</strong><small>$45 · 22 min away</small></button>
-
-  </div>
-<details class="scout-compare"><summary>Compare your shortlist</summary><div id="scoutComparison"></div></details>
-  <div class="scout-learning"><strong>Scout learns from your rounds.</strong><p>After you play, tell us about value, conditions and pace. Your next shortlist will reflect that experience.</p><button type="button" id="reviewFromScout" class="round-button">Review a round</button></div>
-</div>
-</section>
-
-<section id="explore" class="screen">
-<header class="explore-header">
-  <div class="brand"><strong>Explore</strong></div>
-  <h1>Find your next course.</h1>
-  <p>Browse every available course without Scout ranking the decision for you.</p>
-</header>
-<div class="content explore-content">
-  <label class="explore-search"><span aria-hidden="true">⌕</span><input id="exploreSearch" type="search" placeholder="Search courses or cities" aria-label="Search courses or cities"></label>
-  <div class="explore-filters" aria-label="Explore filters">
-    <button class="explore-filter active" type="button" data-explore-filter="all" aria-pressed="true">All courses</button>
-    <button class="explore-filter" type="button" data-explore-filter="nearby" aria-pressed="false">Nearby</button>
-    <button class="explore-filter" type="button" data-explore-filter="value" aria-pressed="false">Under $50</button>
-    <button class="explore-filter" type="button" data-explore-filter="rated" aria-pressed="false">Top rated</button>
-  </div>
-  <div class="explore-summary"><strong id="exploreCount"></strong><span>Tap a course to see every available time.</span></div>
-  <div class="explore-list" id="exploreList"></div>
-</div>
-</section>
-
-<section id="saved" class="screen">
-<header class="saved-header">
-  <div class="brand"><strong>Saved</strong></div>
-  <h1>Your favorite courses.</h1>
-  <p>Keep the courses you want to check again close at hand.</p>
-</header>
-<div class="content saved-content">
-  <div class="saved-summary" id="savedSummary"></div>
-  <div class="saved-list" id="savedList"></div>
-</div>
-</section>
-
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Flyover Golf</title><link rel="stylesheet" href="styles.css"></head><body><div class="phone">
+<section id="home" class="screen active"><header><div class="brand"><div class="logo"><img class="brandmark" src="assets/flyover-mark.png" alt="Flyover Golf"><div>FLYOVER<small>GOLF</small></div></div><button class="help-link" type="button" data-help>Help & privacy</button></div><p class="hello">Des Moines course discovery</p><h1 class="heroq">Find a course worth playing.</h1></header>
+<div class="content"><form id="discoveryForm" class="finder launch-finder"><h2>Plan your next round</h2><p>Pick an area and a date. Your reviews help Scout suggest where to look.</p><label for="planningDate">Date you want to play</label><input id="planningDate" type="date" required><label for="planningCity">Area</label><select id="planningCity"><option value="all">Des Moines metro</option></select><button class="find-btn" type="submit">Find my courses</button></form>
+<div class="discovery-notice"><strong>Availability is checked with the course.</strong><p>Flyover does not display live tee times or prices, take payments, or reserve a round. Your planning date is not a confirmed booking.</p></div>
+<p id="discoveryStatus" class="scout-summary" role="status" aria-live="polite"></p><div id="discoveryResults" class="launch-picks"></div>
+<details class="scout-learning"><summary>How Scout chooses</summary><p>Your latest “Would you play here again?” answer prioritizes courses you enjoyed. With no reviews, courses are listed alphabetically within your chosen area. We do not rank by unverified prices, drive times, weather, ratings or available slots.</p><button id="reviewFromScout" class="round-button" type="button">Review a round</button></details>
+</div></section>
+<section id="explore" class="screen"><header><h1 class="heroq">Explore local courses.</h1><p>Official course websites, with no invented availability.</p></header><div class="content"><label class="explore-search">Search<input id="exploreSearch" type="search" aria-label="Search courses" placeholder="Course or city"></label><div id="exploreList" class="launch-picks"></div></div></section>
+<section id="saved" class="screen"><header><h1 class="heroq">Your saved courses.</h1><p>Favorites stay on this browser.</p></header><div id="savedList" class="content launch-picks"></div></section>
 <section id="rounds" class="screen">
 <header class="rounds-header">
   <div class="brand"><strong>Rounds</strong></div>
@@ -112,6 +22,7 @@
     <div class="account-actions">
       <button id="exportScores" class="round-button" type="button" hidden>Export device scores</button>
       <button id="importScores" class="round-button" type="button" hidden>Import device scores</button>
+      <button id="exportAccount" class="round-button" type="button" hidden>Export my data</button><button id="deleteAccount" class="text-danger" type="button" hidden>Delete my Flyover data</button>
       <input id="importScoresFile" type="file" accept=".json,application/json" hidden>
     </div>
     <p id="accountMessage" role="status" aria-live="polite"></p>
@@ -121,102 +32,16 @@
   <button type="button" id="retryRounds" class="secondary" hidden>Try again</button>
   <div id="roundStats" class="round-stats"></div>
   <div id="playedRounds" class="rounds-list played-rounds"></div>
-  <h2 class="handoff-heading">Booking handoffs</h2>
-  <div class="rounds-notice"><span aria-hidden="true">↗</span><p><strong>Reservations are completed by the course.</strong> Flyover will mark them confirmed once provider updates are connected.</p></div>
-  <div class="rounds-summary" id="roundsSummary"></div>
-  <div class="rounds-list" id="roundsList"></div>
-</div>
-</section>
-
-<section id="course" class="screen">
-<header><div class="brand course-nav"><button class="back" id="backHome" aria-label="Back to Scout">‹</button><strong>Course</strong></div></header>
-<div class="detail">
-  <div class="course-title-row"><h1 id="courseName"></h1><button class="save-course" id="saveCourse" type="button" aria-label="Save course" aria-pressed="false">♡</button></div>
-  <div class="meta" id="courseCity"></div>
-  <a class="course-phone" id="coursePhoneLink" href="#" hidden>
-    <span class="course-phone-icon" aria-hidden="true">☎</span>
-    <span><small>CLUBHOUSE</small><strong id="coursePhone"></strong></span>
-    <b>CALL</b>
-  </a>
-  <div class="scorepanel">
-    <div class="scoretop">
-      <div class="scorecircle"><div><strong id="detailScore">92</strong><span>FLYOVER</span></div></div>
-      <div class="scorewhy"><strong id="scoreLabel">Flyover Pick</strong><p id="scoreReason"></p></div>
-    </div>
-    <div class="factor"><span>PRICE</span><div class="track"><div id="barPrice" class="fill"></div></div><b id="factorPrice"></b></div>
-    <div class="factor"><span>DRIVE TIME</span><div class="track"><div id="barDrive" class="fill"></div></div><b id="factorDrive"></b></div>
-    <div class="factor"><span>COURSE</span><div class="track"><div id="barCourse" class="fill"></div></div><b id="factorCourse"></b></div>
-    <div class="factor"><span>WEATHER</span><div class="track"><div id="barWeather" class="fill"></div></div><b id="factorWeather"></b></div>
-    <div class="tradeoffs" id="tradeoffs"></div>
-    <div class="score-note">Flyover Score weighs price, drive time, course quality, weather, time fit, hole format and ride/walk preference.</div>
-  </div>
-  <div class="tee-time-heading"><strong>AVAILABLE TEE TIMES</strong><small>Tap a price to continue</small></div>
-  <div id="slots"></div>
-</div>
-</section>
-
-
-<section id="booking" class="screen">
-<header><div class="centered-nav"><button class="back" id="backCourse" aria-label="Back to course">‹</button><strong>Tee Time</strong></div></header>
-<div class="content">
-  <div class="booking-card">
-    <h3>YOUR SELECTION</h3>
-    <div class="selection">
-      <div class="thumb"></div>
-      <div>
-        <strong id="bookCourse"></strong>
-        <div class="meta" id="bookMeta"></div>
-        <div class="meta" id="bookTime"></div><div class="source-line" id="bookSource"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="booking-card">
-    <h3>PLAYERS</h3>
-    <div class="playerrow">
-      <button class="player" aria-label="1 player" aria-pressed="false">1</button>
-      <button class="player" aria-label="2 players" aria-pressed="false">2</button>
-      <button class="player" aria-label="3 players" aria-pressed="false">3</button>
-      <button class="player active" aria-label="4 players" aria-pressed="true">4</button>
-    </div>
-  </div>
-
-  <div class="booking-card">
-    <h3>ADD-ONS</h3>
-    <label class="addon"><span class="addon-copy"><span>Cart <small>per booking</small></span><strong>+$14</strong></span><input id="addonCart" type="checkbox" checked></label>
-    <label class="addon"><span class="addon-copy"><span>Range balls <small>optional</small></span><strong>+$6</strong></span><input id="addonRange" type="checkbox"></label>
-  </div>
-
-  <div class="total"><span>TOTAL</span><span id="totalPrice">$182</span></div>
-  <button class="primary" id="confirmBtn">REVIEW BOOKING HANDOFF</button>
-</div>
-</section>
-
-<section id="confirmed" class="screen">
-<header><div class="brand"><div class="logo"><img class="brandmark" src="assets/flyover-mark.png" alt="Flyover Golf F flag"><div>FLYOVER<small>GOLF</small></div></div></div></header>
-<div class="confirm">
-  <div class="check">↗</div>
-  <h1>Ready to book</h1>
-  <div class="meta">Your round is not reserved yet.</div>
-  <div class="confirm-card">
-    <strong id="confirmCourse"></strong>
-    <div class="meta" id="confirmMeta"></div>
-    <div class="total"><span id="confirmPlayers"></span><span id="confirmTotal"></span></div>
-  </div>
-  <div class="handoff-note">Complete your reservation on the course’s website. Final availability and pricing are shown there.</div>
-  <a class="primary" id="providerBookingLink" href="#" target="_blank" rel="noopener">CONTINUE ON COURSE WEBSITE</a>
-  <button class="secondary handoff-back" id="doneBtn">BACK TO SCOUT</button>
-</div>
-</section>
-
+  <h2 class="handoff-heading">Your availability checks</h2><p class="score-help">Saved on this device. These are plans, not reservations.</p><div id="plansList" class="rounds-list"></div>
+</div></section>
+<section id="course" class="screen"><header><button id="backHome" class="back" aria-label="Back">‹</button><strong>Course details</strong></header><div class="detail"><div class="course-title-row"><h1 id="courseName"></h1><button id="saveCourse" class="save-course" aria-label="Save course" aria-pressed="false">♡</button></div><p id="courseCity"></p><p id="courseVerified" class="score-help"></p><a id="coursePhoneLink" class="course-phone" hidden></a><div class="discovery-notice"><strong>Check current details with the course</strong><p>Availability, green fees, cart charges, taxes, policies and conditions can change. The official website is the source for your booking.</p></div><label class="planning-label">Date you want to play<input id="courseDate" type="date" required></label><p id="courseDateStatus" class="score-error" role="alert"></p><a id="checkAvailability" class="round-button availability-link" target="_blank" rel="noopener noreferrer">Check availability with course</a><p class="score-help">Your date is saved here. Choose it again on the course website; Flyover cannot pass it into every booking system.</p><button id="copyPlan" type="button" class="secondary">Copy my plan</button><p id="planStatus" role="status" class="score-help"></p></div></section>
+<section id="help" class="screen"><header><button type="button" id="closeHelp" class="back" aria-label="Back">‹</button><strong>Help & privacy</strong></header><div class="content help-content"><h1>Welcome to Flyover.</h1><ol><li>Choose an area and planning date.</li><li>Explore a course and check availability on its official website.</li><li>After you play, save your score and review the experience in Rounds.</li></ol><h2>Accounts and sync</h2><p>On the private synced site, sign in with the same ChatGPT account on each device. On the older Pages site, scores stay in that browser. Export them there and import them in Rounds on the synced site.</p><h2>Your information</h2><p>Flyover stores the scores, reviews and profile fields you save in your account. Your sign-in email is displayed to you. Reviews are private to your account. Favorites and availability-check plans stay on this browser. No payment details are collected.</p><h2>Export or delete</h2><p>In Rounds, choose Export my data to download synced rounds, reviews and profile data. You can delete individual rounds or all your Flyover data. This does not delete your ChatGPT account. Deletion removes active app records; hosting-provider logs and backups may follow their own retention. Export before deleting anything you want to keep.</p><h2>Reliability and privacy</h2><p>Operational error logs contain a request reference and route category, not your score content or email. A per-account request counter helps protect the service and is retained separately from your golf data. We do not add advertising trackers or session recordings.</p><h2>Need help?</h2><p>For Flyover issues or data questions, email <a href="mailto:jbejarno@gmail.com">jbejarno@gmail.com</a>. Include the error reference if one appears; do not send passwords. For reservations, refunds, cancellations or course conditions, contact the course directly.</p><p class="score-help">Private beta · Updated September 11, 2026</p></div></section>
 <nav>
 <button class="nav active" data-nav="home" aria-label="Home"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M9.5 20v-6h5v6"/></svg></b>Home</button>
 <button class="nav" data-nav="explore" aria-label="Explore courses"><b aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.5 15.5 4.5 4.5"/></svg></b>Explore</button>
 <button class="nav" data-nav="saved" aria-label="Saved courses"><b aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M20.5 8.8c0 5.2-8.5 10.2-8.5 10.2S3.5 14 3.5 8.8A4.3 4.3 0 0 1 12 7.7a4.3 4.3 0 0 1 8.5 1.1Z"/></svg></b>Saved</button>
 <button class="nav" data-nav="rounds" aria-label="Rounds"><b aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="16" rx="2"/><path d="M7.5 2.5v4M16.5 2.5v4M3 9h18M7 13h3M7 16.5h6"/></svg></b>Rounds</button>
-</nav>
-</div>
-
+</nav></div>
 <dialog id="scoreDialog" aria-labelledby="scoreDialogTitle">
 <form id="scoreForm" class="score-form">
   <div class="rounds-toolbar"><h2 id="scoreDialogTitle">Log a round</h2><button type="button" id="closeScore" class="score-close" aria-label="Close score entry">×</button></div>
@@ -239,9 +64,5 @@
 <p class="score-help">Private to you. Your latest review of this course helps Scout rank future picks.</p>
 <p id="feedbackError" class="score-error" role="alert"></p><button type="submit" id="saveFeedback" class="round-button">Save review & update Scout</button>
 </form></dialog>
-<script src="config.js"></script>
-<script src="device-store.js"></script>
-<script src="app.js"></script>
-<script src="rounds.js"></script>
-</body>
-</html>
+<dialog id="deleteDialog" aria-labelledby="deleteTitle"><form id="deleteForm" class="score-form"><h2 id="deleteTitle">Delete saved data?</h2><p id="deleteDescription" class="score-help"></p><label>Type DELETE to confirm<input id="deleteConfirmation" autocomplete="off" required pattern="DELETE"></label><p id="deleteError" class="score-error" role="alert"></p><button id="confirmDelete" type="submit" class="round-button danger-button">Delete permanently</button><button id="cancelDelete" type="button" class="secondary">Keep my data</button></form></dialog>
+<script src="config.js"></script><script src="catalog.js"></script><script src="discovery-core.js"></script><script src="device-store.js"></script><script src="app.js"></script><script src="rounds.js"></script></body></html>

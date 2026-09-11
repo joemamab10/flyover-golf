@@ -47,6 +47,7 @@ export function golferRoutes(store) {
       round.feedback=validateFeedback(req.body,round);round.updatedAt=new Date().toISOString();return round;
     });res.json({round});
   });
+  router.delete("/rounds/:roundId", async(req,res)=>{await store.update(state=>{if(!state.rounds.some(row=>row.id===req.params.roundId))throw new InputError("Round not found.",404);state.rounds=state.rounds.filter(row=>row.id!==req.params.roundId);});res.json({ok:true});});
   router.get("/stats", async (_req, res) => res.json({ stats: getStats((await store.read()).rounds) }));
   return router;
 }

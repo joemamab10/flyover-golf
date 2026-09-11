@@ -1,3 +1,5 @@
+import { discover, validDate } from "../../shared/discovery.js";
+import catalog from "../../shared/catalog.json" with {type:"json"};
 import express from "express";
 import cors from "cors";
 import { config, getPublicConfig } from "./config/index.js";
@@ -43,6 +45,8 @@ app.get("/api/config", (_req, res) => {
   // Deliberately excludes API keys and provider base URLs.
   res.json(getPublicConfig());
 });
+
+app.post("/api/discovery", async (req,res)=>{if(!validDate(req.body.date))throw new InputError("Choose a valid planning date.");res.json({courses:discover(catalog,req.body,(await store.read()).rounds)});});
 
 app.get("/api/courses", (_req, res) => {
   res.json({ courses });

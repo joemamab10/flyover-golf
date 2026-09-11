@@ -1,4 +1,4 @@
-import { courses } from "../courses/courses.js";
+import courses from "../../../shared/catalog.json" with {type:"json"};
 
 export class InputError extends Error {
   constructor(message, status = 400) { super(message); this.status = status; }
@@ -29,7 +29,7 @@ export function validateProfile(input) {
 }
 export function validateRound(input) {
   object(input);
-  const course = courses.find(course => course.id === input.courseId);
+  const course = courses.find(course => course.id === input.courseId || course.aliases?.includes(input.courseId));
   if (!course) throw new InputError("Choose a known courseId.");
   if (typeof input.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(input.date) || !Number.isFinite(Date.parse(input.date)) || new Date(input.date).toISOString().slice(0, 10) !== input.date) throw new InputError("date must be a valid YYYY-MM-DD date.");
   if (![9, 18].includes(input.holes)) throw new InputError("holes must be 9 or 18.");

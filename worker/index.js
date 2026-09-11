@@ -1,17 +1,11 @@
+import { limitedJson as body, limitRequests } from "./reliability.js";
+import { discover, validDate } from "../shared/discovery.js";
+import catalog from "../shared/catalog.json" with {type:"json"};
 import { validateFeedback } from "../api/src/golfer/feedback.js";
 import { InputError, validateRound, validateScore, validateProfile, getStats } from "../api/src/golfer/service.js";
-import { getScoutResults } from "../api/src/scout/recommendations.js";
-import { courses } from "../api/src/courses/courses.js";
 
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json","Cache-Control":"no-store","Vary":"Cookie","X-Content-Type-Options":"nosniff"}});
 const idPattern=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-async function body(request){
-  if(!request.headers.get("content-type")?.includes("application/json"))throw new InputError("Send a JSON request.",415);
-  const raw=await request.text();
-  if(raw.length>200000)throw new InputError("Import up to 100 rounds at a time.",413);
-  try {const data=JSON.parse(raw);if(!data||typeof data!=="object"||Array.isArray(data))throw Error();return data;}
-  catch{throw new InputError("Invalid JSON request.");}
-}
 export async function readRounds(db,userId){
   const {results}=await db.prepare("SELECT data FROM golfer_rounds WHERE user_id = ?").bind(userId).all();
   return results.map(row=>JSON.parse(row.data)).sort((a,b)=>b.date.localeCompare(a.date));
@@ -31,17 +25,23 @@ export default {
     const userId=request.headers.get("oai-authenticated-user-id");
     const email=request.headers.get("oai-authenticated-user-email");
     const authenticated=Boolean(userId&&email);
+    const requestId=crypto.randomUUID();
     try{
-      if(path==="/health")return json({ok:true,mode:"cloud",inventory:"demo"});
-      if(path==="/api/session"&&request.method==="GET")return json({user:authenticated?{email}:null});
-      if(path==="/api/courses"&&request.method==="GET")return json({courses});
-      if(!["GET","HEAD"].includes(request.method)&&request.headers.get("origin")!==url.origin)throw new InputError("Request origin is not allowed.",403);
-      if(path==="/api/scout/recommendations"&&request.method==="POST"){
-        const prefs=await body(request);
-        const golfer=authenticated?{profile:await readProfile(env.DB,userId),rounds:await readRounds(env.DB,userId)}:{profile:{},rounds:[]};
-        const result=await getScoutResults(prefs,golfer);
-        return json({...result,count:result.recommendations.length,inventoryCount:result.inventory.length});
+      if(path==="/health"){
+        await env.DB.prepare("SELECT user_id FROM golfer_rounds LIMIT 1").bind().first();
+        return json({ok:true,mode:"course-discovery"});
       }
+      if(path==="/api/session"&&request.method==="GET")return json({user:authenticated?{email}:null});
+      if(path==="/api/courses"&&request.method==="GET")return json({courses:catalog.filter(course=>course.verifiedOn)});
+      if(!["GET","HEAD"].includes(request.method)&&request.headers.get("origin")!==url.origin)throw new InputError("Request origin is not allowed.",403);
+      if(authenticated)await limitRequests(env.DB,userId);
+      if(path==="/api/discovery"&&request.method==="POST"){
+        const prefs=await body(request);
+        if(!validDate(prefs.date))throw new InputError("Choose a valid planning date.");
+        const rounds=authenticated?await readRounds(env.DB,userId):[];
+        return json({courses:discover(catalog,prefs,rounds),planningDate:prefs.date,mode:"course-discovery"});
+      }
+      if(path==="/api/scout/recommendations")return json({error:{message:"Use course discovery. Demo tee-time recommendations have been retired."}},410);
       if(!authenticated)return json({error:{message:"Sign in to access your synced rounds.",code:"SIGN_IN_REQUIRED"}},401);
       if(path==="/api/golfer-profile"){
         if(request.method==="GET")return json({profile:await readProfile(env.DB,userId)});
@@ -51,6 +51,26 @@ export default {
           await env.DB.prepare("INSERT INTO golfer_profiles(user_id,data) VALUES (?,?) ON CONFLICT(user_id) DO UPDATE SET data=json_patch(golfer_profiles.data,excluded.data)").bind(userId,JSON.stringify(patch)).run();
           return json({profile:await readProfile(env.DB,userId)});
         }
+      }
+      if(path==="/api/account/export"&&request.method==="GET")return json({format:"flyover-rounds-v1",exportedAt:new Date().toISOString(),profile:await readProfile(env.DB,userId),rounds:await readRounds(env.DB,userId)});
+      if(path==="/api/account"&&request.method==="DELETE"){
+        const data=await body(request);
+        if(data.confirmation!=="DELETE")throw new InputError("Type DELETE to confirm.");
+        await env.DB.batch([
+          env.DB.prepare("DELETE FROM golfer_rounds WHERE user_id = ?").bind(userId),
+          env.DB.prepare("DELETE FROM golfer_profiles WHERE user_id = ?").bind(userId)
+        ]);
+        return json({ok:true});
+      }
+      const deleteMatch=path.match(/^\/api\/rounds\/([^/]+)$/);
+      if(deleteMatch&&request.method==="DELETE"){
+        const data=await body(request),id=decodeURIComponent(deleteMatch[1]);
+        const existing=await env.DB.prepare("SELECT data FROM golfer_rounds WHERE user_id = ? AND id = ?").bind(userId,id).first();
+        if(!existing)throw new InputError("Round not found.",404);
+        if(data.version!==JSON.parse(existing.data).version)throw new InputError("This round changed. Refresh before deleting it.",409);
+        const result=await env.DB.prepare("DELETE FROM golfer_rounds WHERE user_id = ? AND id = ? AND data = ?").bind(userId,id,existing.data).run();
+        if(result.meta.changes!==1)throw new InputError("This round changed. Refresh before deleting it.",409);
+        return json({ok:true});
       }
       if(path==="/api/rounds"&&request.method==="GET")return json({rounds:await readRounds(env.DB,userId)});
       if(path==="/api/stats"&&request.method==="GET")return json({stats:getStats(await readRounds(env.DB,userId))});
@@ -92,9 +112,9 @@ export default {
       }
       return json({error:{message:"Not found."}},404);
     }catch(error){
-      if(error instanceof InputError)return json({error:{message:error.message}},error.status);
-      console.error("Flyover request failed",error.name);
-      return json({error:{message:"Your rounds could not be loaded or saved. Please try again."}},500);
+      if(error instanceof InputError){const response=json({error:{message:error.message,requestId}},error.status);if(error.status===429)response.headers.set("Retry-After","60");return response;}
+      console.error(JSON.stringify({event:"request_failed",requestId,method:request.method,route:path.replace(/\/rounds\/[^/]+/,"/rounds/:id"),errorType:error.name}));
+      return json({error:{message:"We couldn’t complete that request. Try again or contact support with this reference.",requestId}},path==="/health"?503:500);
     }
   }
 };

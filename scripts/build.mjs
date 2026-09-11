@@ -1,5 +1,7 @@
 import { build } from "esbuild";
-import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+await writeFile("ui/catalog.js","const courses = "+await readFile("shared/catalog.json","utf8")+";\n");
+await build({entryPoints:["shared/discovery.js"],bundle:true,format:"iife",globalName:"FlyoverDiscovery",outfile:"ui/discovery-core.js"});
 await rm("dist",{recursive:true,force:true});
 await mkdir("dist/server",{recursive:true});
 await mkdir("dist/client",{recursive:true});
