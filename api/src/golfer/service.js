@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { courses } from "../courses/courses.js";
 
 export class InputError extends Error {
@@ -34,7 +33,7 @@ export function validateRound(input) {
   if (!course) throw new InputError("Choose a known courseId.");
   if (typeof input.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(input.date) || !Number.isFinite(Date.parse(input.date)) || new Date(input.date).toISOString().slice(0, 10) !== input.date) throw new InputError("date must be a valid YYYY-MM-DD date.");
   if (![9, 18].includes(input.holes)) throw new InputError("holes must be 9 or 18.");
-  return { id: randomUUID(), courseId: course.id, courseName: course.name, date: input.date, holes: input.holes, tees: input.tees == null ? null : text(input.tees, "tees"), status: "planned", score: null, createdAt: new Date().toISOString() };
+  return { id: crypto.randomUUID(), courseId: course.id, courseName: course.name, date: input.date, holes: input.holes, tees: input.tees == null ? null : text(input.tees, "tees"), status: "planned", score: null, createdAt: new Date().toISOString() };
 }
 export function validateScore(input, round) {
   object(input);

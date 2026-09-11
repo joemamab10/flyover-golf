@@ -1,0 +1,12 @@
+import { build } from "esbuild";
+import { cp, mkdir, rm, writeFile } from "node:fs/promises";
+await rm("dist",{recursive:true,force:true});
+await mkdir("dist/server",{recursive:true});
+await mkdir("dist/client",{recursive:true});
+await cp("ui","dist/client/ui",{recursive:true});
+await cp("index.html","dist/client/index.html");
+await cp(".openai","dist/.openai",{recursive:true});
+await cp("drizzle","dist/.openai/drizzle",{recursive:true});
+await writeFile("dist/client/ui/config.js", 'window.FLYOVER_STORAGE_MODE="cloud";window.FLYOVER_API_BASE_URL="";\n');
+await build({entryPoints:["worker/index.js"],bundle:true,format:"esm",platform:"browser",target:"es2022",outfile:"dist/server/index.js",define:{"process.env":"{}"}});
+console.log("Built hosted app with account-scoped storage.");

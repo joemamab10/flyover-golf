@@ -99,6 +99,18 @@
   <p>Log your scores and see how your game is shaping up.</p>
 </header>
 <div class="content rounds-content">
+  <section id="accountPanel" class="account-panel" aria-labelledby="accountTitle">
+    <h2 id="accountTitle">Take your rounds with you</h2>
+    <p id="accountText">Sign in to keep your scores together on your laptop and phone.</p>
+    <a id="accountSignIn" class="round-button" href="/signin-with-chatgpt?return_to=%2Fui%2F%23rounds" target="_top">Sign in with ChatGPT</a>
+    <a id="accountSignOut" href="/signout-with-chatgpt?return_to=%2Fui%2F%23rounds" target="_top" hidden>Sign out</a>
+    <div class="account-actions">
+      <button id="exportScores" class="round-button" type="button" hidden>Export device scores</button>
+      <button id="importScores" class="round-button" type="button" hidden>Import device scores</button>
+      <input id="importScoresFile" type="file" accept=".json,application/json" hidden>
+    </div>
+    <p id="accountMessage" role="status" aria-live="polite"></p>
+  </section>
   <div class="rounds-toolbar"><h2>Your game</h2><button type="button" class="round-button" id="addRound">+ Log a round</button></div>
   <p id="scoreStatus" class="score-status" role="status" aria-live="polite">Loading your rounds…</p>
   <button type="button" id="retryRounds" class="secondary" hidden>Try again</button>

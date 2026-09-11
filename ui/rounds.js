@@ -10,7 +10,9 @@
       response = await fetch(`${API_BASE_URL}/api${path}`, {method, headers:{"Content-Type":"application/json"}, body:body === undefined ? undefined : JSON.stringify(body), signal:AbortSignal.timeout(10000)});
     } catch { throw Error("Unable to reach your rounds. Check your connection and try again."); }
     const data = await response.json().catch(() => null);
-    if (!response.ok || !data) throw Error(data?.error?.message || "Your rounds service is unavailable. Please try again.");
+    if (!response.ok || !data) {
+      const error=Error(data?.error?.message || "Your rounds service is unavailable. Please try again.");error.status=response.status;throw error;
+    }
     return data;
   }
   function renderStats(stats) {
@@ -26,16 +28,28 @@
     el("scoreStatus").textContent="Loading your rounds…";
     el("retryRounds").hidden=true;
     try {
+      if(window.FLYOVER_STORAGE_MODE==="cloud"){
+        const {user}=await api("/session");
+        el("accountTitle").textContent=user?"Your synced account":"Take your rounds with you";
+        el("accountText").textContent=user?user.email:"Sign in to keep your scores together on your laptop and phone.";
+        el("accountSignIn").hidden=Boolean(user);el("accountSignOut").hidden=!user;
+        el("importScores").hidden=!user;el("addRound").disabled=!user;
+        if(!user){rounds=[];el("roundStats").replaceChildren();el("playedRounds").replaceChildren();el("scoreStatus").textContent="Sign in to view and save synced scores.";return;}
+      }
       const [history, summary]=await Promise.all([api("/rounds"),api("/stats")]);
       if(version!==generation)return;
       rounds=history.rounds;
       renderStats(summary.stats);renderHistory();
-      el("scoreStatus").textContent=(window.FLYOVER_STORAGE_MODE==="device"?"Saved on this device only. ":"")+(message||`${summary.stats.completedRounds} scored round${summary.stats.completedRounds===1?"":"s"}. Averages stay separate for 9 and 18 holes.`);
+      el("scoreStatus").textContent=(window.FLYOVER_STORAGE_MODE==="device"?"Saved on this device only. ":window.FLYOVER_STORAGE_MODE==="cloud"?"Synced to your account. ":"")+(message||`${summary.stats.completedRounds} scored round${summary.stats.completedRounds===1?"":"s"}. Averages stay separate for 9 and 18 holes.`);
       return true;
     } catch(error) {
       if(version!==generation)return;
       el("scoreStatus").textContent=message?`${message} ${error.message}`:error.message;
       el("retryRounds").hidden=false;
+      if(window.FLYOVER_STORAGE_MODE==="cloud"){
+        rounds=[];el("roundStats").replaceChildren();el("playedRounds").replaceChildren();
+        if(error.status===401){el("addRound").disabled=true;el("accountSignIn").hidden=false;el("accountSignOut").hidden=true;el("accountText").textContent="Sign in again to access your scores.";el("importScores").hidden=true;}
+      }
       return false;
     }
   }
@@ -67,7 +81,7 @@
   el("scoreForm").onsubmit=async event=>{
     event.preventDefault();if(busy)return;
     busy=true;el("saveScore").disabled=true;el("saveScore").textContent="Saving…";el("scoreFormError").textContent="";
-    const score={strokes:Number(el("scoreStrokes").value),par:el("scorePar").value===""?null:Number(el("scorePar").value)};
+    const score={strokes:Number(el("scoreStrokes").value),par:el("scorePar").value===""?null:Number(el("scorePar").value),version:editing?.version};
     try {
       if(editing)await api(`/rounds/${encodeURIComponent(editing.id)}/score`,"PUT",score);
       else await api("/rounds","POST",{courseId:el("scoreCourse").value,date:el("scoreDate").value,holes:Number(el("scoreHoles").value),tees:el("scoreTees").value.trim()||null,score,requestId});
@@ -78,5 +92,37 @@
     finally {busy=false;el("saveScore").disabled=false;el("saveScore").textContent="Save score";}
   };
   document.querySelector('[data-nav="rounds"]').addEventListener("click",()=>load());
+  if(window.FLYOVER_STORAGE_MODE==="device"){
+    el("accountSignIn").href="https://flyover-golf.joeb442.chatgpt.site/ui/#rounds";
+    el("accountSignIn").textContent="Open synced Flyover";
+    el("accountText").textContent="Export your scores here, then sign in to the synced app and import that file. Your device copy stays here.";
+    el("exportScores").hidden=false;
+  }else if(window.FLYOVER_STORAGE_MODE!=="cloud")el("accountPanel").hidden=true;
+  el("exportScores").onclick=async()=>{
+    try{
+      const {rounds}=await window.flyoverDeviceStore.request("/rounds","GET");
+      if(!rounds.length){el("accountMessage").textContent="There are no device scores to export yet.";return;}
+      const link=document.createElement("a"),url=URL.createObjectURL(new Blob([JSON.stringify({format:"flyover-rounds-v1",rounds},null,2)],{type:"application/json"}));
+      link.href=url;link.download="flyover-rounds.json";link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+      el("accountMessage").textContent="Export downloaded. Open synced Flyover and choose Import device scores.";
+    }catch{el("accountMessage").textContent="Could not export your device scores. Your saved data has not been changed.";}
+  };
+  el("importScores").onclick=()=>el("importScoresFile").click();
+  el("importScoresFile").onchange=async()=>{
+    const file=el("importScoresFile").files[0];if(!file)return;
+    el("importScores").disabled=true;
+    try{
+      if(file.size>200000)throw Error("Choose a Flyover export under 200 KB (up to 100 rounds).");
+      const imported=JSON.parse(await file.text());
+      if(imported.format!=="flyover-rounds-v1"||!Array.isArray(imported.rounds))throw Error("Choose a Flyover rounds export file.");
+      await api("/rounds/import","POST",{rounds:imported.rounds});
+      el("accountMessage").textContent="Import complete. Rounds already in your account were kept without duplication.";
+      await load();await refreshScout();
+    }catch(error){el("accountMessage").textContent=error instanceof SyntaxError?"This file is not a valid Flyover export.":error.message;}
+    finally{el("importScores").disabled=false;el("importScoresFile").value="";}
+  };
+  document.addEventListener("visibilitychange",()=>{if(!document.hidden&&!busy&&!el("scoreDialog").open&&el("rounds").classList.contains("active"))load();});
+  window.addEventListener("pageshow",event=>{if(event.persisted)load();});
+  if(location.hash==="#rounds")showScreen("rounds");
   load();
 })();
