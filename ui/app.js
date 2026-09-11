@@ -108,7 +108,7 @@ async function refreshInventory(){
 }
 
 
-const API_BASE_URL="http://localhost:3000";
+const API_BASE_URL=window.FLYOVER_API_BASE_URL ?? (["localhost","127.0.0.1"].includes(location.hostname) && location.port!=="3000" ? "http://localhost:3000" : "");
 let currentApiRecommendations=[];
 let selectedApiRecommendation=null;
 
@@ -124,12 +124,13 @@ function setApiStatus(isOnline){
     text.textContent="Real courses with demo tee times, prices and Flyover Scores.";
   }else{
     dot.classList.add("offline");
-    title.textContent="Prototype mode · Local fallback";
-    text.textContent="The API is offline, so Scout is showing local demo recommendations.";
+    title.textContent=window.FLYOVER_STORAGE_MODE==="device"?"Prototype mode · Demo tee times":"Prototype mode · Local fallback";
+    text.textContent=window.FLYOVER_STORAGE_MODE==="device"?"Scores stay on this device. Tee times and prices are examples.":"The API is offline, so Scout is showing local demo recommendations.";
   }
 }
 
 async function checkApiHealth(){
+  if(window.FLYOVER_STORAGE_MODE==="device"){setApiStatus(false);return false;}
   try{
     const r=await fetch(`${API_BASE_URL}/health`);
     if(!r.ok)throw new Error("health");
@@ -164,7 +165,7 @@ async function fetchScoutRecommendations(){
 }
 
 function buildApiReason(item){
-  const reasons=[];
+  const reasons=[...(item.golferFit?.reasons||[])];
   if(item.factors?.price>=92)reasons.push("excellent value");
   if(item.factors?.drive>=92)reasons.push("short drive");
   if(item.factors?.course>=94)reasons.push("top course quality");
@@ -237,6 +238,7 @@ function openApiBooking(item){
 }
 
 async function runScoutFromApi(){
+  if(window.FLYOVER_STORAGE_MODE==="device")return false;
   try{
     const result=await fetchScoutRecommendations();
     currentApiRecommendations=result.inventory;
@@ -369,8 +371,11 @@ function scoreCourse(c,p){
   if(timeFit<60) total-=10;
 
   total=clamp(total);
-
   const reasons=[];
+  if(window.FLYOVER_STORAGE_MODE==="device" && window.flyoverDeviceStore.played(c.providerCourseId)){
+    total=clamp(total+2);
+    reasons.push("a course you’ve played before");
+  }
   if(price>=92) reasons.push("excellent value");
   else if(price>=82) reasons.push("good price");
   if(drive>=92) reasons.push("short drive");
@@ -491,7 +496,7 @@ function roundDateLabel(date){
 function renderRounds(){
   const rounds=getRounds();
   $("roundsSummary").textContent=rounds.length?`${rounds.length} BOOKING HANDOFF${rounds.length===1?"":"S"}`:"";
-  $("roundsList").innerHTML=rounds.length?rounds.map(round=>`<article class="round-card"><div class="round-card-top"><div><span class="round-status">NOT YET CONFIRMED</span><h2>${round.courseName}</h2></div><strong class="round-card-price">$${round.total}</strong></div><div class="round-details"><span>${roundDateLabel(round.date)} · ${round.time}</span><span>·</span><span>${round.players} player${round.players===1?"":"s"}</span>${round.addons?.length?`<span>·</span><span>${round.addons.join(" + ")}</span>`:""}</div><div class="round-actions"><a class="round-resume" href="${round.bookingUrl}" target="_blank" rel="noopener">FINISH ON COURSE WEBSITE</a><button class="round-remove" type="button" data-round-remove="${round.id}" aria-label="Remove ${round.courseName} booking handoff">×</button></div></article>`).join(""):`<div class="rounds-empty"><b>▣</b><strong>No rounds started yet</strong><span>Choose a tee time and review the booking handoff to keep it here.</span></div>`;
+  $("roundsList").innerHTML=rounds.length?rounds.map(round=>`<article class="round-card"><div class="round-card-top"><div><span class="round-status">NOT YET CONFIRMED</span><h2>${round.courseName}</h2></div><strong class="round-card-price">$${round.total}</strong></div><div class="round-details"><span>${roundDateLabel(round.date)} · ${round.time}</span><span>·</span><span>${round.players} player${round.players===1?"":"s"}</span>${round.addons?.length?`<span>·</span><span>${round.addons.join(" + ")}</span>`:""}</div><div class="round-actions"><a class="round-resume" href="${round.bookingUrl}" target="_blank" rel="noopener">FINISH ON COURSE WEBSITE</a><button class="round-remove" type="button" data-round-remove="${round.id}" aria-label="Remove ${round.courseName} booking handoff">×</button></div></article>`).join(""):`<div class="rounds-empty"><b>▣</b><strong>No booking handoffs yet</strong><span>Choose a tee time and review the booking handoff to keep it here.</span></div>`;
   document.querySelectorAll("[data-round-remove]").forEach(button=>button.onclick=()=>{
     const remaining=getRounds().filter(round=>round.id!==button.dataset.roundRemove);
     localStorage.setItem(ROUNDS_KEY,JSON.stringify(remaining));
@@ -555,10 +560,10 @@ function openCourse(c,t){
     : `<strong>No major tradeoffs</strong><span>This round fits your current Scout preferences well.</span>`;
   $("slots").innerHTML=c.times.map(x=>`<div class="slot"><span>${x.t}</span><button class="book-slot" data-time="${x.t}">SELECT · $${c.price}</button></div>`).join(""); document.querySelectorAll(".book-slot").forEach(b=>b.onclick=()=>openBooking(c,b.dataset.time));
 }
-document.querySelectorAll(".scout-toggle").forEach(btn=>btn.onclick=()=>{const g=btn.dataset.prefGroup;prefState[g]=btn.dataset.value;document.querySelectorAll(`.scout-toggle[data-pref-group="${g}"]`).forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});btn.classList.add("active");btn.setAttribute("aria-pressed","true");renderScout()});
-["prefWhen","prefPlayers","prefDrive","prefPrice"].forEach(id=>$(id).onchange=renderScout);
+document.querySelectorAll(".scout-toggle").forEach(btn=>btn.onclick=()=>{const g=btn.dataset.prefGroup;prefState[g]=btn.dataset.value;document.querySelectorAll(`.scout-toggle[data-pref-group="${g}"]`).forEach(x=>{x.classList.remove("active");x.setAttribute("aria-pressed","false")});btn.classList.add("active");btn.setAttribute("aria-pressed","true");refreshScout()});
+["prefWhen","prefPlayers","prefDrive","prefPrice"].forEach(id=>$(id).onchange=refreshScout);
 $("runScout").onclick=()=>{
-  renderScout();
+  refreshScout();
   $("scoutPanel").classList.remove("show");
   $("scoutResult").scrollIntoView({behavior:scrollBehavior(),block:"center"});
 };
@@ -588,7 +593,7 @@ $("refineScout").onclick=()=>{
   panel.classList.toggle("show");
   if(panel.classList.contains("show"))setTimeout(()=>panel.scrollIntoView({behavior:scrollBehavior(),block:"nearest"}),180);
 };
-$("quickMorning").onclick=()=>{$("prefWhen").value="morning";$("prefWhen")._scoutSync();renderScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";$("prefPlayers")._scoutSync();renderScout()};
+$("quickMorning").onclick=()=>{$("prefWhen").value="morning";$("prefWhen")._scoutSync();refreshScout()};$("quickFour").onclick=()=>{$("prefPlayers").value="4";$("prefPlayers")._scoutSync();refreshScout()};
 $("backHome").onclick=()=>showScreen(courseReturnScreen);
 document.querySelector('[data-nav="home"]').onclick=()=>{showScreen("home");window.scrollTo({top:0,behavior:scrollBehavior()})};
 document.querySelector('[data-nav="explore"]').onclick=()=>{renderExplore();showScreen("explore")};
@@ -602,3 +607,5 @@ document.querySelectorAll(".explore-filter").forEach(button=>button.onclick=()=>
   renderExplore();
 });
 refreshInventory().then(async()=>{renderScout();renderExplore();renderSaved();renderRounds();const online=await checkApiHealth();if(online)await runScoutFromApi();});
+
+async function refreshScout(){renderScout();await runScoutFromApi();}

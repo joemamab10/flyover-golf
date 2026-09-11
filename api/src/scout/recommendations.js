@@ -1,9 +1,10 @@
 import { loadInventory } from "../tee-times/inventoryService.js";
+import { personalize } from "./personalize.js";
 import { scoreTeeTime } from "./score.js";
 
-function rankInventory(inventory, preferences) {
+function rankInventory(inventory, preferences, golfer) {
   return inventory
-    .map((item) => scoreTeeTime(item, preferences))
+    .map((item) => personalize(scoreTeeTime(item, preferences), golfer.profile, golfer.rounds, preferences))
     .sort((a, b) => {
       if (b.flyoverScore !== a.flyoverScore) {
         return b.flyoverScore - a.flyoverScore;
@@ -41,13 +42,13 @@ function selectBestRoundPerCourse(rankedInventory) {
   return recommendations;
 }
 
-export async function getScoutResults(preferences = {}) {
+export async function getScoutResults(preferences = {}, golfer = { profile: {}, rounds: [] }) {
   const inventory = await loadInventory({
     date: preferences.date ?? "today",
     players: preferences.players ?? 4
   });
 
-  const rankedInventory = rankInventory(inventory, preferences);
+  const rankedInventory = rankInventory(inventory, preferences, golfer);
   const recommendations = selectBestRoundPerCourse(rankedInventory);
 
   return {

@@ -6,7 +6,13 @@ import { loadInventory } from "./tee-times/inventoryService.js";
 import { getScoutResults } from "./scout/recommendations.js";
 import { ProviderError } from "./providers/ProviderError.js";
 
-const app = express();
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { createStore } from "./golfer/store.js";
+import { golferRoutes } from "./golfer/routes.js";
+import { InputError } from "./golfer/service.js";
+
+const store = createStore(process.env.GOLFER_DATA_DIR || fileURLToPath(new URL("../.local/", import.meta.url)));
+export const app = express();
 
 const corsOptions = {
   origin(origin, callback) {
@@ -22,6 +28,7 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use("/api", golferRoutes(store));
 
 app.get("/health", (_req, res) => {
   res.json({
@@ -49,7 +56,7 @@ app.get("/api/tee-times", async (req, res) => {
 });
 
 app.post("/api/scout/recommendations", async (req, res) => {
-  const { recommendations, inventory } = await getScoutResults(req.body || {});
+  const { recommendations, inventory } = await getScoutResults(req.body || {}, await store.read());
 
   res.json({
     count: recommendations.length,
@@ -60,6 +67,11 @@ app.post("/api/scout/recommendations", async (req, res) => {
 });
 
 app.use((error, _req, res, _next) => {
+  if (error instanceof InputError || error.type === "entity.parse.failed") {
+    res.status(error.status || 400).json({ error: { code: "INVALID_INPUT", message: error instanceof InputError ? error.message : "Invalid JSON body." } });
+    return;
+  }
+
   if (error instanceof ProviderError) {
     res.status(error.status).json(error.toJSON());
     return;
@@ -71,7 +83,7 @@ app.use((error, _req, res, _next) => {
   });
 });
 
-app.listen(config.port, () => {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) app.listen(config.port, () => {
   console.log(
     `Flyover Golf API listening on http://localhost:${config.port} (${config.env})`
   );

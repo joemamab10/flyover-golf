@@ -95,10 +95,16 @@
 <section id="rounds" class="screen">
 <header class="rounds-header">
   <div class="brand"><strong>Rounds</strong></div>
-  <h1>Your booking handoffs.</h1>
-  <p>Return to rounds you started and finish booking with the course.</p>
+  <h1>Every round counts.</h1>
+  <p>Log your scores and see how your game is shaping up.</p>
 </header>
 <div class="content rounds-content">
+  <div class="rounds-toolbar"><h2>Your game</h2><button type="button" class="round-button" id="addRound">+ Log a round</button></div>
+  <p id="scoreStatus" class="score-status" role="status" aria-live="polite">Loading your rounds…</p>
+  <button type="button" id="retryRounds" class="secondary" hidden>Try again</button>
+  <div id="roundStats" class="round-stats"></div>
+  <div id="playedRounds" class="rounds-list played-rounds"></div>
+  <h2 class="handoff-heading">Booking handoffs</h2>
   <div class="rounds-notice"><span aria-hidden="true">↗</span><p><strong>Reservations are completed by the course.</strong> Flyover will mark them confirmed once provider updates are connected.</p></div>
   <div class="rounds-summary" id="roundsSummary"></div>
   <div class="rounds-list" id="roundsList"></div>
@@ -194,6 +200,21 @@
 </nav>
 </div>
 
+<dialog id="scoreDialog" aria-labelledby="scoreDialogTitle">
+<form id="scoreForm" class="score-form">
+  <div class="rounds-toolbar"><h2 id="scoreDialogTitle">Log a round</h2><button type="button" id="closeScore" class="score-close" aria-label="Close score entry">×</button></div>
+  <p class="score-help">Record your own score after you play.</p>
+  <label>Course<select id="scoreCourse" required></select></label>
+  <div class="score-fields"><label>Date played<input id="scoreDate" type="date" required></label><label>Holes<select id="scoreHoles"><option value="18">18 holes</option><option value="9">9 holes</option></select></label></div>
+  <label>Tees <span>(optional)</span><input id="scoreTees" maxlength="100" placeholder="e.g. Blue"></label>
+  <div class="score-fields"><label>Total strokes<input id="scoreStrokes" type="number" inputmode="numeric" min="18" max="270" step="1" required></label><label>Par <span>(optional)</span><input id="scorePar" type="number" inputmode="numeric" min="54" max="108" step="1"></label></div>
+  <p id="scoreFormError" class="score-error" role="alert"></p>
+  <button type="submit" id="saveScore" class="round-button">Save score</button>
+</form>
+</dialog>
+<script src="config.js"></script>
+<script src="device-store.js"></script>
 <script src="app.js"></script>
+<script src="rounds.js"></script>
 </body>
 </html>
